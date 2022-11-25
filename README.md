@@ -24,27 +24,16 @@
 # 기술 스택
 
 ### 협업툴
-<img src="https://img.shields.io/badge/GitLab-FCA121?style=for-the-badge&logo=GitLab&logoColor=white">
-<img src="https://img.shields.io/badge/MatterMost-0058CC?style=for-the-badge&logo=MatterMost&logoColor=white">
-<img src="https://img.shields.io/badge/JIRA-0052CC?style=for-the-badge&logo=JIRA&logoColor=white">
-<img src="https://img.shields.io/badge/Notion-000000?style=for-the-badge&logo=Notion&logoColor=white">
+<img src="https://img.shields.io/badge/GitLab-FCA121?style=for-the-badge&logo=GitLab&logoColor=white"> <img src="https://img.shields.io/badge/MatterMost-0058CC?style=for-the-badge&logo=MatterMost&logoColor=white"> <img src="https://img.shields.io/badge/JIRA-0052CC?style=for-the-badge&logo=JIRA&logoColor=white"> <img src="https://img.shields.io/badge/Notion-000000?style=for-the-badge&logo=Notion&logoColor=white">
 
 ### Back-end
-<img src="https://img.shields.io/badge/Java-007396?style=for-the-badge&logo=Java&logoColor=white">
-<img src="https://img.shields.io/badge/SpringBoot-6DB33F?style=for-the-badge&logo=SpringBoot&logoColor=white">
-<img src="https://img.shields.io/badge/FastAPI-009185?style=for-the-badge&logo=FastAPI&logoColor=white">
-<img src="https://img.shields.io/badge/MYSQL-4479A1?style=for-the-badge&logo=MYSQL&logoColor=white">
-<img src="https://img.shields.io/badge/SpringSecurity-6DB33F?style=for-the-badge&logo=SpringSecurity&logoColor=white">
-<img src="https://img.shields.io/badge/Gradle-02303A?style=for-the-badge&logo=Gradle&logoColor=white">
+<img src="https://img.shields.io/badge/Java-007396?style=for-the-badge&logo=Java&logoColor=white"> <img src="https://img.shields.io/badge/SpringBoot-6DB33F?style=for-the-badge&logo=SpringBoot&logoColor=white"> <img src="https://img.shields.io/badge/FastAPI-009185?style=for-the-badge&logo=FastAPI&logoColor=white"> <img src="https://img.shields.io/badge/MYSQL-4479A1?style=for-the-badge&logo=MYSQL&logoColor=white"> <img src="https://img.shields.io/badge/SpringSecurity-6DB33F?style=for-the-badge&logo=SpringSecurity&logoColor=white"> <img src="https://img.shields.io/badge/Gradle-02303A?style=for-the-badge&logo=Gradle&logoColor=white">
 
 ### Front-end
-<img src="https://img.shields.io/badge/Flutter-blue?style=for-the-badge&logo=Flutter&logoColor=white">
-<img src="https://img.shields.io/badge/Dart-blue?style=for-the-badge&logo=Dart&logoColor=white">
+<img src="https://img.shields.io/badge/Flutter-blue?style=for-the-badge&logo=Flutter&logoColor=white"> <img src="https://img.shields.io/badge/Dart-blue?style=for-the-badge&logo=Dart&logoColor=white">
 
 ### 서버
-<img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=Docker&logoColor=white">
-<img src="https://img.shields.io/badge/Jenkins-white?style=for-the-badge&logo=Jenkins&logoColor=black">
-<img src="https://img.shields.io/badge/nginx-009639?style=for-the-badge&logo=NGINX&logoColor=white">
+<img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=Docker&logoColor=white"> <img src="https://img.shields.io/badge/Jenkins-white?style=for-the-badge&logo=Jenkins&logoColor=black"> <img src="https://img.shields.io/badge/nginx-009639?style=for-the-badge&logo=NGINX&logoColor=white">
 
 # [와이어 프레임](https://www.figma.com/file/qmCytyAf5nAPNjQYtNmeko/%ED%8A%B9%ED%99%942%EB%B0%984%EC%A1%B0?node-id=290%3A707)
 ![와이어프레임](images/와이어프레임.PNG)
@@ -59,10 +48,7 @@
 ![ERD](images/ERD.PNG)
 
 # 컬러팔레트
-<img src="https://img.shields.io/badge/483434-483434?style=for-the-badge&logo=&logoColor=white">
-<img src="https://img.shields.io/badge/C3B091-C3B091?style=for-the-badge&logo=&logoColor=white">
-<img src="https://img.shields.io/badge/FFE6BC-FFE6BC?style=for-the-badge&logo=&logoColor=white">
-<img src="https://img.shields.io/badge/FFFDF4-FFFDF4?style=for-the-badge&logo=&logoColor=white">
+<img src="https://img.shields.io/badge/483434-483434?style=for-the-badge&logo=&logoColor=white"> <img src="https://img.shields.io/badge/C3B091-C3B091?style=for-the-badge&logo=&logoColor=white"> <img src="https://img.shields.io/badge/FFE6BC-FFE6BC?style=for-the-badge&logo=&logoColor=white"> <img src="https://img.shields.io/badge/FFFDF4-FFFDF4?style=for-the-badge&logo=&logoColor=white">
 
 # JIRA
 ![JIRA](images/지라.PNG)
@@ -75,8 +61,7 @@
 <img src="./images/gif/2-2.gif" width="250" height="500"/>
 
 ### 회원가입화면
-<img src="./images/gif/1-2.gif" width="250" height="500"/>
-<img src="./images/gif/1-8.gif" width="250" height="500"/>
+<img src="./images/gif/1-2.gif" width="250" height="500"/> <img src="./images/gif/1-8.gif" width="250" height="500"/>
 
 ### 메인화면
 <img src="./images/gif/4-3.gif" width="250" height="500"/>
@@ -85,33 +70,22 @@
 <img src="./images/gif/2-2-1-2.gif" width="250" height="500"/>
 
 ### 반려견
-<img src="./images/gif/6-1-1.gif" width="250" height="500"/>
-<img src="./images/gif/6-2.gif" width="250" height="500"/>
-<img src="./images/gif/12.gif" width="250" height="500"/>
+<img src="./images/gif/6-1-1.gif" width="250" height="500"/> <img src="./images/gif/6-2.gif" width="250" height="500"/> <img src="./images/gif/12.gif" width="250" height="500"/>
 
 ### 견의보감
-<img src="./images/Bogam1.jpg" width="250" height="500"/>
-<img src="./images/Bogam2.jpg" width="250" height="500"/>
-<img src="./images/Bogam3.jpg" width="250" height="500"/>
-<img src="./images/Bogam4.jpg" width="250" height="500"/>
-<img src="./images/Bogam5.jpg" width="250" height="500"/>
+<img src="./images/Bogam1.jpg" width="250" height="500"/> <img src="./images/Bogam2.jpg" width="250" height="500"/> <img src="./images/Bogam3.jpg" width="250" height="500"/> <img src="./images/Bogam4.jpg" width="250" height="500"/> <img src="./images/Bogam5.jpg" width="250" height="500"/>
 
 ### 견민정음
-<img src="./images/Jeongeum1.jpg" width="250" height="500"/>
-<img src="./images/Jeongeum2.jpg" width="250" height="500"/>
-<img src="./images/Jeongeum3.jpg" width="250" height="500"/>
+<img src="./images/Jeongeum1.jpg" width="250" height="500"/> <img src="./images/Jeongeum2.jpg" width="250" height="500"/> <img src="./images/Jeongeum3.jpg" width="250" height="500"/>
 
 ### 견중일기
 <img src="./images/gif/13.gif" width="250" height="500"/>
 
 ### 산책
-<img src="./images/gif/6-3.gif" width="250" height="500"/>
-<img src="./images/gif/6-4.gif" width="250" height="500"/>
+<img src="./images/gif/6-3.gif" width="250" height="500"/> <img src="./images/gif/6-4.gif" width="250" height="500"/>
 
 ### 게시판
-<img src="./images/gif/15.gif" width="250" height="500"/>
-<img src="./images/gif/16.gif" width="250" height="500"/>
-<img src="./images/gif/19.gif" width="250" height="500"/>
+<img src="./images/gif/15.gif" width="250" height="500"/> <img src="./images/gif/16.gif" width="250" height="500"/> <img src="./images/gif/19.gif" width="250" height="500"/>
 
 ### Gitmoji의 이모지 설명
 
