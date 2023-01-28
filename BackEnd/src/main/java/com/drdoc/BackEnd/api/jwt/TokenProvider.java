@@ -47,48 +47,22 @@ public class TokenProvider {
     }
 
     public TokenDto generateTokenDto(Authentication authentication) {
-        // 권한들 가져오기
-//        String authorities = authentication.getAuthorities().stream()
-//                .map(GrantedAuthority::getAuthority)
-//                .collect(Collectors.joining(","));
-
-        long now = (new Date()).getTime();
-
-        // Access Token 생성
-        Date accessTokenExpiresIn = new Date(now + ACCESS_TOKEN_EXPIRE_TIME);
-        String accessToken = Jwts.builder()
-                .setSubject(authentication.getName())       // payload "sub": "학번"
-                .claim(AUTHORITIES_KEY, "ROLE_USER")        // payload "auth": "ROLE_USER"
-                .setExpiration(accessTokenExpiresIn)        // payload "exp": 1516239022 (예시)
-                .signWith(key, SignatureAlgorithm.HS512)    // header "alg": "HS512"
-                .compact();
-
-        // Refresh Token 생성
-        String refreshToken = Jwts.builder()
-                .setExpiration(new Date(now + REFRESH_TOKEN_EXPIRE_TIME))
-                .signWith(key, SignatureAlgorithm.HS512)
-                .compact();
-
-        return TokenDto.builder()
-                .grantType(BEARER_TYPE)             //인증타입 bearer :  JWT 혹은 OAuth에 대한 토큰 사용
-                .accessToken(accessToken)
-                .accessTokenExpiresIn(accessTokenExpiresIn.getTime())   //만료일
-                .refreshToken(refreshToken)
-                .build();
+    	// 권한들 가져오기
+//      String authorities = authentication.getAuthorities().stream()
+//      			.map(GrantedAuthority::getAuthority)
+//      			.collect(Collectors.joining(","));
+    	
+    	String memberId = authentication.getName();
+    	return generateTokenDto(memberId);
     }
 
     public TokenDto generateTokenDto(String memberId) {
-        // 권한들 가져오기
-//        String authorities = authentication.getAuthorities().stream()
-//                .map(GrantedAuthority::getAuthority)
-//                .collect(Collectors.joining(","));
-
         long now = (new Date()).getTime();
 
         // Access Token 생성
         Date accessTokenExpiresIn = new Date(now + ACCESS_TOKEN_EXPIRE_TIME);
         String accessToken = Jwts.builder()
-                .setSubject(memberId)       // payload "sub": "학번"
+                .setSubject(memberId)       				// payload "sub": "아이디"
                 .claim(AUTHORITIES_KEY, "ROLE_USER")        // payload "auth": "ROLE_USER"
                 .setExpiration(accessTokenExpiresIn)        // payload "exp": 1516239022 (예시)
                 .signWith(key, SignatureAlgorithm.HS512)    // header "alg": "HS512"
@@ -102,9 +76,9 @@ public class TokenProvider {
                 .compact();
 
         return TokenDto.builder()
-                .grantType(BEARER_TYPE)             //인증타입 bearer :  JWT 혹은 OAuth에 대한 토큰 사용
+                .grantType(BEARER_TYPE) // 인증타입 bearer : JWT 혹은 OAuth에 대한 토큰 사용
                 .accessToken(accessToken)
-                .accessTokenExpiresIn(accessTokenExpiresIn.getTime())   //만료일
+                .accessTokenExpiresIn(accessTokenExpiresIn.getTime()) // 만료일
                 .refreshToken(refreshToken)
                 .build();
     }

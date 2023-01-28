@@ -14,7 +14,7 @@ public class BackEndApplication {
 	public static void main(String[] args) {
 		new SpringApplicationBuilder(BackEndApplication.class)
         .properties(APPLICATION_LOCATIONS)
-        .run(args);;
+        .run(args);
 	}
 
 }

@@ -9,18 +9,19 @@ import org.springframework.security.core.userdetails.UserDetails;
 public class SecurityUtil {
 
     private static final Logger logger = LoggerFactory.getLogger(SecurityUtil.class);
-
+    
+    // SecurityUtil은 인스턴스 생성 불가
     private SecurityUtil() {
     }
 
-    //Security Context의 Authentication 객체를 이용해 id을 리턴해주는 유틸성 메소드
+    // Security Context의 Authentication 객체를 이용해 id을 리턴해주는 유틸성 메소드
     public static String getCurrentUsername() {
-        //SecurityContext에 Authentication객체가 저장되는 시점은 JwtFilter의 doFilter메소드에서 Request가 들어올 때
-        //SecurityContext에 Authentication 객체를 저장해서 사용
+        // SecurityContext에 Authentication 객체가 저장되는 시점은 JwtFilter의 doFilter 메소드에서 Request가 들어올 때
+        // SecurityContext에 Authentication 객체를 저장해서 사용
         final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication == null) {
-            throw  new RuntimeException("Security Context 에 인증 정보가 없습니다.");
+            throw new RuntimeException("Security Context에 인증 정보가 없습니다.");
         }
 
         String username = "";
@@ -30,7 +31,7 @@ public class SecurityUtil {
         } else if (authentication.getPrincipal() instanceof String) {
             username = (String)authentication.getPrincipal();
         }
-
+        logger.debug("Security Context에서 인증 정보 획득, username: {}", username);
         return username;
     }
 }
