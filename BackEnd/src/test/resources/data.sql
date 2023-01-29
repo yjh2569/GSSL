@@ -1,0 +1,1 @@
+INSERT INTO USERS(member_id, password, nickname, gender, phone, email) VALUES ('testMemberId', 'testPassword', 'test1', 'M', '01011112222', 'test@test.com');
