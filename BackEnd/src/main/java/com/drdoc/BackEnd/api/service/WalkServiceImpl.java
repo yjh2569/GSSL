@@ -65,8 +65,7 @@ public class WalkServiceImpl implements WalkService {
 			new IllegalArgumentException("산책 기록에 접근 권한이 없습니다.");
 		}
 		// 산책동물 테이블에 저장된 정보 수정
-		List<WalkPet> walkPetList = walkPetRepository.findByWalk(walk)
-				.orElseThrow(() -> new IllegalArgumentException("해당 산책에 데려간 반려동물이 없습니다."));
+		List<WalkPet> walkPetList = walkPetRepository.findByWalk(walk);
 		List<Integer> oldPetIds = walkPetList.stream().map(wp -> wp.getPet().getId()).collect(Collectors.toList());
 		List<Integer> newPetIds = request.getPet_ids();
 
@@ -122,8 +121,7 @@ public class WalkServiceImpl implements WalkService {
 
 	public List<WalkPetDetailDto> getPetList(int walkId) {
 		Walk walk = walkRepository.findById(walkId).orElseThrow(() -> new IllegalArgumentException("산책 기록이 없습니다."));
-		List<WalkPet> walkPetList = walkPetRepository.findByWalk(walk)
-				.orElseThrow(() -> new IllegalArgumentException("해당 산책에 데려간 반려동물이 없습니다."));
+		List<WalkPet> walkPetList = walkPetRepository.findByWalk(walk);
 		List<WalkPetDetailDto> petList = walkPetList.stream().map(wp -> new WalkPetDetailDto(wp.getPet())).collect(Collectors.toList());
 		return petList;
 	}
@@ -149,7 +147,7 @@ public class WalkServiceImpl implements WalkService {
 	@Override
 	public WalkTimeDto walkTimeSum(int petId) {
 		Pet pet = petRepository.findById(petId).orElseThrow(() -> new IllegalArgumentException("해당 반려동물이 없습니다."));
-		List<WalkPet> walkPetList = walkPetRepository.findByPet(pet).orElseThrow(() -> new IllegalArgumentException("해당 반려동물의 산책기록이 없습니다."));
+		List<WalkPet> walkPetList = walkPetRepository.findByPet(pet);
 		int totalDistance = 0;
 		int totalTimeSpent = 0;
 		

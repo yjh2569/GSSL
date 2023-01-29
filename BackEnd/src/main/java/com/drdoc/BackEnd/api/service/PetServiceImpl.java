@@ -21,8 +21,6 @@ import com.drdoc.BackEnd.api.repository.PetRepository;
 import com.drdoc.BackEnd.api.repository.JournalRepository;
 import com.drdoc.BackEnd.api.repository.PetKindRepository;
 import com.drdoc.BackEnd.api.repository.UserRepository;
-import com.drdoc.BackEnd.api.repository.WalkPetRepository;
-import com.drdoc.BackEnd.api.repository.WalkRepository;
 
 @Service
 public class PetServiceImpl implements PetService {
@@ -97,7 +95,8 @@ public class PetServiceImpl implements PetService {
 				.orElseThrow(() -> new IllegalArgumentException("가입하지 않은 계정입니다."));
 		if (user.isLeft())
 			throw new IllegalArgumentException("이미 탈퇴한 계정입니다.");
-		List<PetListDto> petList = petRepository.findAllByUserId(user.getId());
+		List<PetListDto> petList = petRepository.findAllByUserId(user.getId()).stream()
+				.map(PetListDto::new).collect(Collectors.toList());
 		return petList;
 	}
 

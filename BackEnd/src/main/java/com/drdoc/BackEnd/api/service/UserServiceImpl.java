@@ -147,7 +147,7 @@ public class UserServiceImpl implements UserService {
 		UserInfoDto userInfoDto = UserInfoDto.builder().member_id(memberId).email(user.getEmail())
 				.gender(user.getGender()).introduce(user.getIntroduce()).leave(user.isLeft())
 				.nickname(user.getNickname()).phone(user.getPhone()).profile_pic(user.getProfilePic())
-				.pet_id(user.getPet_id()).build();
+				.pet_id(user.getPetId()).build();
 		return userInfoDto;
 	}
 	

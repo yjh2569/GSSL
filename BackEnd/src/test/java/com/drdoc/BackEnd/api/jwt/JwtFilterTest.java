@@ -28,7 +28,10 @@ public class JwtFilterTest {
 	@Autowired
 	TokenProvider tokenProvider;
 
-	private static final String BEARER_TYPE = "Bearer ";
+	private final String BEARER_TYPE = "Bearer ";
+	private final String TEST_URI = "/api/user";
+	private final String TEST_MEMBER_ID = "testMemberId";
+	private final String AUTHORIZATION = "Authorization";
 
 	/**
 	 * AccessToken : 존재하지 않음
@@ -36,7 +39,7 @@ public class JwtFilterTest {
 	@Test
 	@DisplayName("AccessToken 없이 API 사용 시 Unauthorized")
 	public void noAccessToken() throws Exception {
-		mvc.perform(get("/api/user")).andExpect(status().isUnauthorized());
+		mvc.perform(get(TEST_URI)).andExpect(status().isUnauthorized());
 	}
 
 	/**
@@ -45,12 +48,10 @@ public class JwtFilterTest {
 	@Test
 	@DisplayName("유효한 AccessToken를 소유한 채 API 사용 시 정상 호출 확인")
 	public void validAccessToken() throws Exception {
-		String memberId = "testMemberId";
-
-		TokenDto token = tokenProvider.generateTokenDto(memberId);
+		TokenDto token = tokenProvider.generateTokenDto(TEST_MEMBER_ID);
 
 		assertNotNull(token.getAccessToken());
-		mvc.perform(get("/api/user").header("Authorization", 
+		mvc.perform(get(TEST_URI).header(AUTHORIZATION, 
 				BEARER_TYPE + token.getAccessToken()))
 				.andExpect(status().isOk());
 	}
@@ -61,12 +62,10 @@ public class JwtFilterTest {
 	@Test
 	@DisplayName("유효하지 않은 AccessToken를 소유한 채 API 사용 시 Unauthorized 확인")
 	public void invalidAccessToken() throws Exception {
-		String memberId = "testMemberId";
-
-		TokenDto token = tokenProvider.generateTokenDto(memberId);
+		TokenDto token = tokenProvider.generateTokenDto(TEST_MEMBER_ID);
 
 		assertNotNull(token.getAccessToken());
-		mvc.perform(get("/api/user").header("Authorization", 
+		mvc.perform(get(TEST_URI).header(AUTHORIZATION, 
 				BEARER_TYPE + token.getAccessToken() + "invalid_string"))
 				.andExpect(status().isUnauthorized());
 	}

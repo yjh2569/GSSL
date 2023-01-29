@@ -44,14 +44,12 @@ public class Walk {
 	@Column(name = "end_time", nullable = false)
 	private LocalDateTime end_time;
 
-	@Builder
 	public Walk(WalkRegisterRequestDto request) {
 		this.start_time = request.getStart_time();
 		this.end_time = request.getEnd_time();
 		this.distance = request.getDistance();
 	}
 	
-	@Builder
 	public Walk(WalkRegisterRequestDto request, User user) {
 		this.start_time = request.getStart_time();
 		this.end_time = request.getEnd_time();

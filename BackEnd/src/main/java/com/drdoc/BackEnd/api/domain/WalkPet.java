@@ -42,7 +42,6 @@ public class WalkPet {
 	@JoinColumn(name = "walkId", nullable = false)
 	private Walk walk;
 
-	@Builder
 	public WalkPet(Walk walk, Pet pet) {
 		this.pet = pet;
 		this.walk = walk;

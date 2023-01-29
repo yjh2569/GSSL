@@ -13,7 +13,7 @@ import com.drdoc.BackEnd.api.domain.WalkPet;
 @Repository
 public interface WalkPetRepository extends JpaRepository<WalkPet, Integer> {
 	Optional<WalkPet> findFirstByWalkAndPet(Walk walk, Pet pet);
-	Optional<List<WalkPet>> findByWalk(Walk walk);
-	Optional<List<WalkPet>> findByPet(Pet pet);
+	List<WalkPet> findByWalk(Walk walk);
+	List<WalkPet> findByPet(Pet pet);
 	Optional<WalkPet> findFirstByPetOrderByIdDesc(Pet pet);
 }

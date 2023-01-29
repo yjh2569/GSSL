@@ -34,7 +34,7 @@ public class Journal {
     private int id;
 
 	@ManyToOne
-	@JoinColumn(name = "userId")
+	@JoinColumn(name = "user_id")
 	private User user;
 
     @Column(name = "pet_id", nullable = false)
@@ -56,7 +56,6 @@ public class Journal {
     @Column(name = "created_date", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
     private LocalDateTime created_date;    
 
-    @Builder
     public Journal(JournalRequestDto request, User user) {
     	this.user = user;
         this.petId = request.getPet_id();

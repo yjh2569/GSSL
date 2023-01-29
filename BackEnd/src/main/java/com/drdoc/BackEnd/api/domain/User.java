@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "user")
+@Table(name = "users")
 @Entity
 @Builder
 public class User {
@@ -56,8 +56,8 @@ public class User {
     @Column(name = "isLeft", nullable = false, columnDefinition = "boolean default false")
     private boolean isLeft;
     
-    @Column(name = "pet_id", nullable = true)
-    private int pet_id;
+    @Column(name = "pet_id", nullable = true, columnDefinition = "int default 0")
+    private int petId;
     
     public void modify(UserModifyRequestDto requestDto) {
 		this.memberId = requestDto.getMember_id();
@@ -66,13 +66,13 @@ public class User {
 		this.gender = requestDto.getGender();
 		this.introduce = requestDto.getIntroduce();
 		this.nickname = requestDto.getNickname();
-		this.pet_id = requestDto.getPet_id();
+		this.petId = requestDto.getPet_id();
 		this.phone = requestDto.getPhone();
 		this.profilePic = requestDto.getProfile_pic();
 	}
     
     public void modifyPetId(int petId) {
-    	this.pet_id = petId;
+    	this.petId = petId;
     }
     
     public void quit() {
