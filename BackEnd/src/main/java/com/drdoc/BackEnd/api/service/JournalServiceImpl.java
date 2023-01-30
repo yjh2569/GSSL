@@ -30,9 +30,9 @@ public class JournalServiceImpl implements JournalService {
 	// 일지 등록
 	@Override
 	public void register(JournalRequestDto request) {
-				User user = getCurrentUser();
-				Journal journal = new Journal(request, user);
-				repository.save(journal);
+		User user = getCurrentUser();
+		Journal journal = new Journal(request, user);
+		repository.save(journal);
 	}
 
 	// 일지 수정

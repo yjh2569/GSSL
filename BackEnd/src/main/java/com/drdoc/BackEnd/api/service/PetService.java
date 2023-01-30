@@ -9,11 +9,11 @@ import com.drdoc.BackEnd.api.domain.dto.PetModifyRequestDto;
 import com.drdoc.BackEnd.api.domain.dto.PetRegisterRequestDto;
 
 public interface PetService {
-	void registerPet(String userId, PetRegisterRequestDto petRegisterRequestDto);
-	void modifyPet(int petId, String userId, PetModifyRequestDto petModifyRequestDto);
+	void registerPet(PetRegisterRequestDto petRegisterRequestDto);
+	void modifyPet(int petId, PetModifyRequestDto petModifyRequestDto);
 	String getPetImage(int petId);
-	void deletePet(int petId, String userId);
-	List<PetListDto> getPetList(String memberId);
+	void deletePet(int petId);
+	List<PetListDto> getPetList();
 	PetDetailDto getPetDetail(int petId);
 	List<PetKindListDto> getPetKindList();
 	PetKindListDto getPetKind(int kindId);

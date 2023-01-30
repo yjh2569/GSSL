@@ -1,6 +1,5 @@
 package com.drdoc.BackEnd.api.controller;
 
-import java.io.IOException;
 import java.util.List;
 
 import javax.validation.Valid;
@@ -23,7 +22,6 @@ import com.drdoc.BackEnd.api.domain.dto.CommentListResponseDto;
 import com.drdoc.BackEnd.api.domain.dto.CommentModifyRequestDto;
 import com.drdoc.BackEnd.api.domain.dto.CommentWriteRequestDto;
 import com.drdoc.BackEnd.api.service.CommentService;
-import com.drdoc.BackEnd.api.util.SecurityUtil;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -46,9 +44,8 @@ public class CommentController {
 			@ApiResponse(code = 401, message = "인증이 만료되어 로그인이 필요합니다."), 
 			@ApiResponse(code = 500, message = "서버 오류") })
 	public ResponseEntity<BaseResponseDto> writeComment(
-			@Valid @RequestBody CommentWriteRequestDto requestDto) throws IOException {
-		String memberId = SecurityUtil.getCurrentUsername();
-		commentService.writeComment(memberId, requestDto);
+			@Valid @RequestBody CommentWriteRequestDto requestDto) {
+		commentService.writeComment(requestDto);
 		return ResponseEntity.status(201).body(BaseResponseDto.of(201, "Created"));
 	}
 	
@@ -59,9 +56,8 @@ public class CommentController {
 			@ApiResponse(code = 401, message = "인증이 만료되어 로그인이 필요합니다."), 
 			@ApiResponse(code = 403, message = "댓글 수정 권한이 없습니다."), @ApiResponse(code = 500, message = "서버 오류") })
 	public ResponseEntity<BaseResponseDto> modifyComment(
-			@PathVariable("commentId") int commentId, @Valid @RequestBody CommentModifyRequestDto requestDto) throws IOException {
-		String memberId = SecurityUtil.getCurrentUsername();
-		commentService.modifyComment(commentId, memberId, requestDto);
+			@PathVariable("commentId") int commentId, @Valid @RequestBody CommentModifyRequestDto requestDto) {
+		commentService.modifyComment(commentId, requestDto);
 		return ResponseEntity.status(200).body(BaseResponseDto.of(200, "Modified"));
 	}
 	
@@ -72,9 +68,8 @@ public class CommentController {
 			@ApiResponse(code = 401, message = "인증이 만료되어 로그인이 필요합니다."), 
 			@ApiResponse(code = 403, message = "댓글 삭제 권한이 없습니다."), @ApiResponse(code = 500, message = "서버 오류") })
 	public ResponseEntity<BaseResponseDto> deleteComment(
-			@PathVariable("commentId") int commentId) throws IOException {
-		String memberId = SecurityUtil.getCurrentUsername();
-		commentService.deleteComment(commentId, memberId);
+			@PathVariable("commentId") int commentId) {
+		commentService.deleteComment(commentId);
 		return ResponseEntity.status(200).body(BaseResponseDto.of(200, "Deleted"));
 	}
 	
@@ -85,7 +80,7 @@ public class CommentController {
 			@ApiResponse(code = 401, message = "인증이 만료되어 로그인이 필요합니다."), 
 			@ApiResponse(code = 500, message = "서버 오류") })
 	public ResponseEntity<BaseResponseDto> getCommentList(
-			@PathVariable("boardId") int boardId) throws IOException {
+			@PathVariable("boardId") int boardId) {
 		List<CommentListDto> comments = commentService.getCommentList(boardId);
 		return ResponseEntity.status(200).body(CommentListResponseDto.of(200, "Success", comments));
 	}

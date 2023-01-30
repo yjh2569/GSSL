@@ -18,6 +18,7 @@ import com.drdoc.BackEnd.api.domain.dto.CommentWriteRequestDto;
 import com.drdoc.BackEnd.api.repository.BoardRepository;
 import com.drdoc.BackEnd.api.repository.CommentRepository;
 import com.drdoc.BackEnd.api.repository.UserRepository;
+import com.drdoc.BackEnd.api.util.SecurityUtil;
 
 @Service
 public class CommentServiceImpl implements CommentService {
@@ -33,7 +34,8 @@ public class CommentServiceImpl implements CommentService {
 
 	@Override
 	@Transactional
-	public void writeComment(String memberId, CommentWriteRequestDto requestDto) {
+	public void writeComment(CommentWriteRequestDto requestDto) {
+		String memberId = SecurityUtil.getCurrentUsername();
 		User user = userRepository.findByMemberId(memberId)
 				.orElseThrow(() -> new IllegalArgumentException("가입하지 않은 계정입니다."));
 		Board board = boardRepository.findById(requestDto.getBoard_id())
@@ -45,7 +47,8 @@ public class CommentServiceImpl implements CommentService {
 
 	@Override
 	@Transactional
-	public void modifyComment(int commentId, String memberId, CommentModifyRequestDto requestDto) {
+	public void modifyComment(int commentId, CommentModifyRequestDto requestDto) {
+		String memberId = SecurityUtil.getCurrentUsername();
 		User user = userRepository.findByMemberId(memberId)
 				.orElseThrow(() -> new IllegalArgumentException("가입하지 않은 계정입니다."));
 		Comment comment = commentRepository.findById(commentId)
@@ -58,7 +61,8 @@ public class CommentServiceImpl implements CommentService {
 
 	@Override
 	@Transactional
-	public void deleteComment(int commentId, String memberId) {
+	public void deleteComment(int commentId) {
+		String memberId = SecurityUtil.getCurrentUsername();
 		User user = userRepository.findByMemberId(memberId)
 				.orElseThrow(() -> new IllegalArgumentException("가입하지 않은 계정입니다."));
 		Comment comment = commentRepository.findById(commentId)

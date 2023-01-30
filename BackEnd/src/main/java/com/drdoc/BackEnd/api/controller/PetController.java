@@ -1,10 +1,10 @@
 package com.drdoc.BackEnd.api.controller;
 
 import java.io.IOException;
-import java.util.ArrayList;
 
 import javax.validation.Valid;
 
+import org.apache.tomcat.util.http.fileupload.FileUploadException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -20,15 +20,13 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.drdoc.BackEnd.api.domain.dto.BaseResponseDto;
 import com.drdoc.BackEnd.api.domain.dto.PetDetailResponseDto;
-import com.drdoc.BackEnd.api.domain.dto.PetKindListDto;
 import com.drdoc.BackEnd.api.domain.dto.PetKindListResponseDto;
 import com.drdoc.BackEnd.api.domain.dto.PetKindResponseDto;
 import com.drdoc.BackEnd.api.domain.dto.PetListResponseDto;
 import com.drdoc.BackEnd.api.domain.dto.PetModifyRequestDto;
 import com.drdoc.BackEnd.api.domain.dto.PetRegisterRequestDto;
+import com.drdoc.BackEnd.api.service.FileUploadService;
 import com.drdoc.BackEnd.api.service.PetService;
-import com.drdoc.BackEnd.api.service.S3Service;
-import com.drdoc.BackEnd.api.util.SecurityUtil;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -42,7 +40,7 @@ import io.swagger.annotations.ApiResponses;
 public class PetController {
 	
 	@Autowired
-	private S3Service s3Service;
+	private FileUploadService fileUploadService;
 	
 	@Autowired
 	private PetService petService;
@@ -56,27 +54,10 @@ public class PetController {
 			@ApiResponse(code = 500, message = "서버 오류") })
 	public ResponseEntity<BaseResponseDto> registerPet(
 			@Valid @RequestPart(value = "pet") PetRegisterRequestDto petRegisterRequestDto,
-			@RequestPart(value = "file", required = false) MultipartFile file) {
-		String memberId = SecurityUtil.getCurrentUsername();
-		try {
-			if (file != null) {
-				if (file.getSize() >= 10485760) {
-					return ResponseEntity.status(400).body(BaseResponseDto.of(400, "이미지 크기 제한은 10MB 입니다."));
-				}
-				String originFile = file.getOriginalFilename();
-				String originFileExtension = originFile.substring(originFile.lastIndexOf("."));
-				if (!originFileExtension.equalsIgnoreCase(".jpg") && !originFileExtension.equalsIgnoreCase(".png")
-						&& !originFileExtension.equalsIgnoreCase(".jpeg")) {
-					return ResponseEntity.status(400).body(BaseResponseDto.of(400, "jpg, jpeg, png의 이미지 파일만 업로드해주세요"));
-				}
-				String imgPath = s3Service.upload("", file);
-				petRegisterRequestDto.setAnimal_pic(imgPath);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			return ResponseEntity.status(400).body(BaseResponseDto.of(400, "파일 업로드에 실패했습니다."));
-		}
-		petService.registerPet(memberId, petRegisterRequestDto);
+			@RequestPart(value = "file", required = false) MultipartFile file) throws FileUploadException {
+		String imgPath = fileUploadService.uploadFile(file);
+		petRegisterRequestDto.setAnimal_pic(imgPath);
+		petService.registerPet(petRegisterRequestDto);
 		return ResponseEntity.status(201).body(BaseResponseDto.of(201, "Created"));
 	}
 
@@ -90,29 +71,15 @@ public class PetController {
 			@ApiResponse(code = 500, message = "서버 오류") })
 	public ResponseEntity<BaseResponseDto> modifyPet(@PathVariable("petId") int petId,
 			@Valid @RequestPart(value = "pet") PetModifyRequestDto petModifyRequestDto,
-			@RequestPart(value = "file", required = false) MultipartFile file) {
-		String memberId = SecurityUtil.getCurrentUsername();
-		try {
-			if (file != null) {
-				if (file.getSize() >= 10485760) {
-					return ResponseEntity.status(400).body(BaseResponseDto.of(400, "이미지 크기 제한은 10MB 입니다."));
-				}
-				String originFile = file.getOriginalFilename();
-				String originFileExtension = originFile.substring(originFile.lastIndexOf("."));
-				if (!originFileExtension.equalsIgnoreCase(".jpg") && !originFileExtension.equalsIgnoreCase(".png")
-						&& !originFileExtension.equalsIgnoreCase(".jpeg")) {
-					return ResponseEntity.status(400).body(BaseResponseDto.of(400, "jpg, jpeg, png의 이미지 파일만 업로드해주세요"));
-				}
-				String imgPath = s3Service.upload("", file);
-				petModifyRequestDto.setAnimal_pic(imgPath);
-			} else {
-				s3Service.delete(petService.getPetImage(petId));
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			return ResponseEntity.status(400).body(BaseResponseDto.of(400, "파일 업로드에 실패했습니다."));
+			@RequestPart(value = "file", required = false) MultipartFile file) throws FileUploadException {
+		String currentFilePath = petService.getPetImage(petId);
+		if (file != null) {
+			String imgPath = fileUploadService.modifyFile(currentFilePath, file);
+			petModifyRequestDto.setAnimal_pic(imgPath);
+		} else {
+			fileUploadService.deleteFile(currentFilePath);
 		}
-		petService.modifyPet(petId, memberId, petModifyRequestDto);
+		petService.modifyPet(petId, petModifyRequestDto);
 		return ResponseEntity.status(200).body(BaseResponseDto.of(200, "Modified"));
 	}
 	
@@ -125,12 +92,11 @@ public class PetController {
 			@ApiResponse(code = 403, message = "게시글 삭제 권한이 없습니다."),
 			@ApiResponse(code = 500, message = "서버 오류") })
 	public ResponseEntity<BaseResponseDto> deletePet(@PathVariable("petId") int petId) throws IOException {
-		String memberId = SecurityUtil.getCurrentUsername();
 		String image = petService.getPetImage(petId);
 		if (image != null && !"".equals(image)) {
-			s3Service.delete(image);
+			fileUploadService.deleteFile(image);
 		}
-		petService.deletePet(petId, memberId);
+		petService.deletePet(petId);
 		return ResponseEntity.status(200).body(BaseResponseDto.of(200, "Deleted"));
 	}
 	
@@ -142,8 +108,7 @@ public class PetController {
 		@ApiResponse(code = 401, message = "인증이 필요합니다."),
 		@ApiResponse(code = 500, message = "서버 오류") })
 	public ResponseEntity<PetListResponseDto> getPetList() {
-		String memberId = SecurityUtil.getCurrentUsername();
-		return ResponseEntity.status(200).body(PetListResponseDto.of(200, "Success", petService.getPetList(memberId)));
+		return ResponseEntity.status(200).body(PetListResponseDto.of(200, "Success", petService.getPetList()));
 	}
 	
 	@GetMapping("/{petId}")

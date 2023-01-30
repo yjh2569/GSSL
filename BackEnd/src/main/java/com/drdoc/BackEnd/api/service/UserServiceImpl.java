@@ -25,6 +25,7 @@ import com.drdoc.BackEnd.api.jwt.TokenProvider;
 import com.drdoc.BackEnd.api.repository.PetRepository;
 import com.drdoc.BackEnd.api.repository.RefreshTokenRepository;
 import com.drdoc.BackEnd.api.repository.UserRepository;
+import com.drdoc.BackEnd.api.util.SecurityUtil;
 
 import lombok.RequiredArgsConstructor;
 
@@ -41,15 +42,13 @@ public class UserServiceImpl implements UserService {
 	// 회원가입
 	@Override
 	public void register(UserRegisterRequestDto requestDto) {
+		checkDuplication(requestDto);
 		User user = User.builder().memberId(requestDto.getMember_id()).nickname(requestDto.getNickname())
 				.password(encoder.encode(requestDto.getPassword().toLowerCase())).email(requestDto.getEmail())
 				.phone(requestDto.getPhone()).gender(requestDto.getGender()).profilePic(requestDto.getProfile_pic())
 				.introduce(requestDto.getIntroduce()).build();
 		repository.save(user);
 	}
-
-	// 회원 1명 조회
-//    User findByMemberId(String memberId);
 
 	// memberId 중복체크
 	public boolean checkMemberId(String memberId) {
@@ -152,7 +151,9 @@ public class UserServiceImpl implements UserService {
 	}
 	
 	@Override
-	public void modify(String memberId, UserModifyRequestDto requestDto) {
+	public void modify(UserModifyRequestDto requestDto) {
+		String memberId = SecurityUtil.getCurrentUsername();
+		checkModifyDuplication(memberId, requestDto);
 		User user = repository.findByMemberId(memberId)
 				.orElseThrow(() -> new IllegalArgumentException("가입하지 않은 계정입니다."));
 		requestDto.setPassword(encoder.encode(requestDto.getPassword()));
@@ -179,13 +180,13 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public String getProfilePicture(String memberId) {
+	public String getProfilePicture() {
+		String memberId = SecurityUtil.getCurrentUsername();
 		User user = repository.findByMemberId(memberId)
 				.orElseThrow(() -> new IllegalArgumentException("가입하지 않은 계정입니다."));
 		return user.getProfilePic();
 	}
 
-	@Override
 	public void checkDuplication(UserRegisterRequestDto requestDto) {
 		if (!checkMemberId(requestDto.getMember_id())) {
 			throw new IllegalArgumentException("중복된 아이디입니다.");
@@ -195,7 +196,6 @@ public class UserServiceImpl implements UserService {
 		}
 	}
 
-	@Override
 	public void checkModifyDuplication(String memberId, UserModifyRequestDto requestDto) {
 		User user = repository.findByMemberId(memberId)
 				.orElseThrow(() -> new IllegalArgumentException("가입하지 않은 계정입니다."));

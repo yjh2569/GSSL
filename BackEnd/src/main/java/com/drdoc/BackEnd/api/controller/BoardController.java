@@ -1,9 +1,8 @@
 package com.drdoc.BackEnd.api.controller;
 
-import java.io.IOException;
-
 import javax.validation.Valid;
 
+import org.apache.tomcat.util.http.fileupload.FileUploadException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -27,8 +26,7 @@ import com.drdoc.BackEnd.api.domain.dto.BoardListResponseDto;
 import com.drdoc.BackEnd.api.domain.dto.BoardModifyRequestDto;
 import com.drdoc.BackEnd.api.domain.dto.BoardWriteRequestDto;
 import com.drdoc.BackEnd.api.service.BoardService;
-import com.drdoc.BackEnd.api.service.S3Service;
-import com.drdoc.BackEnd.api.util.SecurityUtil;
+import com.drdoc.BackEnd.api.service.FileUploadService;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -42,7 +40,7 @@ import io.swagger.annotations.ApiResponses;
 public class BoardController {
 
 	@Autowired
-	private S3Service s3Service;
+	private FileUploadService fileUploadService;
 
 	@Autowired
 	private BoardService boardService;
@@ -54,28 +52,10 @@ public class BoardController {
 			@ApiResponse(code = 401, message = "인증이 만료되어 로그인이 필요합니다."), @ApiResponse(code = 500, message = "서버 오류") })
 	public ResponseEntity<BaseResponseDto> writeBoard(
 			@Valid @RequestPart(value = "board") BoardWriteRequestDto requestDto,
-			@RequestPart(value = "file", required = false) MultipartFile file) throws IOException {
-		String memberId = SecurityUtil.getCurrentUsername();
-		try {
-			if (file != null) {
-				if (file.getSize() >= 10485760) {
-					return ResponseEntity.status(400).body(BaseResponseDto.of(400, "이미지 크기 제한은 10MB 입니다."));
-				}
-				String originFile = file.getOriginalFilename();
-				String originFileExtension = originFile.substring(originFile.lastIndexOf("."));
-				if (!originFileExtension.equalsIgnoreCase(".jpg") && !originFileExtension.equalsIgnoreCase(".png")
-						&& !originFileExtension.equalsIgnoreCase(".jpeg")) {
-					return ResponseEntity.status(400).body(BaseResponseDto.of(400, "jpg, jpeg, png의 이미지 파일만 업로드해주세요"));
-				}
-				String imgPath = s3Service.upload("", file);
-				requestDto.setImage(imgPath);
-			}
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-			return ResponseEntity.status(400).body(BaseResponseDto.of(400, "파일 업로드에 실패했습니다."));
-		}
-		boardService.writeBoard(memberId, requestDto);
+			@RequestPart(value = "file", required = false) MultipartFile file) throws FileUploadException {
+		String ImgPath = fileUploadService.uploadFile(file);
+		requestDto.setImage(ImgPath);
+		boardService.writeBoard(requestDto);
 		return ResponseEntity.status(201).body(BaseResponseDto.of(201, "Created"));
 	}
 
@@ -87,29 +67,15 @@ public class BoardController {
 			@ApiResponse(code = 403, message = "게시글 수정 권한이 없습니다."), @ApiResponse(code = 500, message = "서버 오류") })
 	public ResponseEntity<BaseResponseDto> modifyBoard(@PathVariable("boardId") int boardId,
 			@Valid @RequestPart(value = "board") BoardModifyRequestDto requestDto,
-			@RequestPart(value = "file", required = false) MultipartFile file) throws IOException {
-		String memberId = SecurityUtil.getCurrentUsername();
-		try {
-			if (file != null) {
-				if (file.getSize() >= 10485760) {
-					return ResponseEntity.status(400).body(BaseResponseDto.of(400, "이미지 크기 제한은 10MB 입니다."));
-				}
-				String originFile = file.getOriginalFilename();
-				String originFileExtension = originFile.substring(originFile.lastIndexOf("."));
-				if (!originFileExtension.equalsIgnoreCase(".jpg") && !originFileExtension.equalsIgnoreCase(".png")
-						&& !originFileExtension.equalsIgnoreCase(".jpeg")) {
-					return ResponseEntity.status(400).body(BaseResponseDto.of(400, "jpg, jpeg, png의 이미지 파일만 업로드해주세요"));
-				}
-				String imgPath = s3Service.upload(boardService.getBoardImage(boardId), file);
-				requestDto.setImage(imgPath);
-			} else {
-				s3Service.delete(boardService.getBoardImage(boardId));
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			return ResponseEntity.status(400).body(BaseResponseDto.of(400, "파일 업로드에 실패했습니다."));
+			@RequestPart(value = "file", required = false) MultipartFile file) throws FileUploadException {
+		String currentFilePath = boardService.getBoardImage(boardId);
+		if (file != null) {
+			String imgPath = fileUploadService.modifyFile(currentFilePath, file);
+			requestDto.setImage(imgPath);
+		} else {
+			fileUploadService.deleteFile(currentFilePath);
 		}
-		boardService.modifyBoard(boardId, memberId, requestDto);
+		boardService.modifyBoard(boardId, requestDto);
 		return ResponseEntity.status(200).body(BaseResponseDto.of(200, "Modified"));
 	}
 
@@ -119,13 +85,12 @@ public class BoardController {
 			@ApiResponse(code = 400, message = "입력이 잘못되었습니다."),
 			@ApiResponse(code = 401, message = "인증이 만료되어 로그인이 필요합니다."),
 			@ApiResponse(code = 403, message = "게시글 삭제 권한이 없습니다."), @ApiResponse(code = 500, message = "서버 오류") })
-	public ResponseEntity<BaseResponseDto> deleteBoard(@PathVariable("boardId") int boardId) throws IOException {
-		String memberId = SecurityUtil.getCurrentUsername();
+	public ResponseEntity<BaseResponseDto> deleteBoard(@PathVariable("boardId") int boardId) throws FileUploadException {
 		String image = boardService.getBoardImage(boardId);
 		if (image != null && !"".equals(image)) {
-			s3Service.delete(image);
+			fileUploadService.deleteFile(image);
 		}
-		boardService.deleteBoard(boardId, memberId);
+		boardService.deleteBoard(boardId);
 		return ResponseEntity.status(200).body(BaseResponseDto.of(200, "Deleted"));
 	}
 
@@ -135,7 +100,7 @@ public class BoardController {
 			@ApiResponse(code = 400, message = "입력이 잘못되었습니다."),
 			@ApiResponse(code = 401, message = "인증이 만료되어 로그인이 필요합니다."), @ApiResponse(code = 500, message = "서버 오류") })
 	public ResponseEntity<? extends BaseResponseDto> boardList(@RequestParam("type_id") int typeId, @RequestParam("word") String word,
-			@RequestParam("page") int page, @RequestParam("size") int size) throws IOException {
+			@RequestParam("page") int page, @RequestParam("size") int size) {
 		Page<BoardListDto> boardList = boardService.getBoardList(typeId, word, page, size);
 		return ResponseEntity.status(200).body(BoardListResponseDto.of(200, "Success", boardList));
 	}
@@ -145,8 +110,7 @@ public class BoardController {
 	@ApiResponses({ @ApiResponse(code = 200, message = "게시글 상세 조회에 성공했습니다."),
 			@ApiResponse(code = 400, message = "입력이 잘못되었습니다."),
 			@ApiResponse(code = 401, message = "인증이 만료되어 로그인이 필요합니다."), @ApiResponse(code = 500, message = "서버 오류") })
-	public ResponseEntity<? extends BaseResponseDto> boardDetail(@PathVariable("boardId") int boardId)
-			throws IOException {
+	public ResponseEntity<? extends BaseResponseDto> boardDetail(@PathVariable("boardId") int boardId) {
 		BoardDetailDto board = boardService.getBoardDetail(boardId);
 		return ResponseEntity.status(200).body(BoardDetailResponseDto.of(200, "Success", board));
 	}

@@ -3,6 +3,8 @@ package com.drdoc.BackEnd.exception.handler;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.tomcat.util.http.fileupload.FileUploadException;
+import org.apache.tomcat.util.http.fileupload.impl.FileSizeLimitExceededException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -115,5 +117,16 @@ public class GlobalExceptionHandler {
 				(cur, error) -> new StringBuilder(cur).append(" ").append(error).toString());
 		return ResponseEntity.status(400).body(BaseResponseDto.of(400, errorLog));
 	}
-
+	
+	@ExceptionHandler(FileSizeLimitExceededException.class)
+	protected ResponseEntity<BaseResponseDto> handleFileSizeLimitExceededException(FileSizeLimitExceededException e) {
+		System.err.println(e.getMessage());
+		return ResponseEntity.status(400).body(BaseResponseDto.of(400, e.getMessage() + "\n파일 크기 : " + Math.round(e.getActualSize()*10/1024*1024)/10 + "MB"));
+	}
+	
+	@ExceptionHandler(FileUploadException.class)
+	protected ResponseEntity<BaseResponseDto> handleFileUploadException(FileUploadException e) {
+		System.err.println(e.getMessage());
+		return ResponseEntity.status(400).body(BaseResponseDto.of(400, e.getMessage()));
+	}
 }

@@ -24,7 +24,7 @@ public interface UserService {
     UserInfoDto getUserDetail(String memberId);
 
     // 회원정보 수정
-    void modify(String memberId, UserModifyRequestDto requestDto);
+    void modify(UserModifyRequestDto requestDto);
     
     // 메인 반려동물 수정
     void modifyPet(String memberId, int petId);
@@ -34,11 +34,7 @@ public interface UserService {
 	
     TokenDto reissue(RefreshTokenDto tokenRequestDto);
 
-	String getProfilePicture(String memberId);
-	
-	void checkModifyDuplication(String memberId, UserModifyRequestDto requestDto);
-	
-	void checkDuplication(UserRegisterRequestDto requestDto);
+	String getProfilePicture();
 	
 	void quit(String memberId);
 

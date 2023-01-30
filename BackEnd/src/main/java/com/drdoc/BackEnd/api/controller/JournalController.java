@@ -2,8 +2,8 @@ package com.drdoc.BackEnd.api.controller;
 
 import javax.validation.Valid;
 
+import org.apache.tomcat.util.http.fileupload.FileUploadException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -22,8 +22,8 @@ import com.drdoc.BackEnd.api.domain.dto.JournalBatchDeleteRequestDto;
 import com.drdoc.BackEnd.api.domain.dto.JournalDetailResponseDto;
 import com.drdoc.BackEnd.api.domain.dto.JournalListResponseDto;
 import com.drdoc.BackEnd.api.domain.dto.JournalRequestDto;
+import com.drdoc.BackEnd.api.service.FileUploadService;
 import com.drdoc.BackEnd.api.service.JournalService;
-import com.drdoc.BackEnd.api.service.S3Service;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -40,7 +40,7 @@ import springfox.documentation.annotations.ApiIgnore;
 public class JournalController {
 
 	@Autowired
-	private S3Service s3Service;
+	private FileUploadService fileUploadService;
 	
 	@Autowired
 	private JournalService journalService;
@@ -52,33 +52,9 @@ public class JournalController {
 			@ApiResponse(code = 401, message = "인증이 필요합니다."), @ApiResponse(code = 403, message = "권한이 없습니다."),
 			@ApiResponse(code = 500, message = "서버 오류") })
 	public ResponseEntity<BaseResponseDto> register(@RequestPart(value = "journal") @Valid JournalRequestDto requestDto,
-			@RequestPart(value = "file", required = true) MultipartFile file, @ApiIgnore Errors errors) {
-		try {
-			if (file != null) {
-				if (file.getSize() >= 10485760) {
-					return ResponseEntity.status(HttpStatus.FORBIDDEN.value())
-							.body(BaseResponseDto.of(HttpStatus.FORBIDDEN.value(), "이미지 크기 제한은 10MB 입니다."));
-				}
-				String originFile = file.getOriginalFilename();
-				String originFileExtension = originFile.substring(originFile.lastIndexOf("."));
-				if (!originFileExtension.equalsIgnoreCase(".jpg") && !originFileExtension.equalsIgnoreCase(".png")
-						&& !originFileExtension.equalsIgnoreCase(".jpeg")) {
-					return ResponseEntity.status(HttpStatus.FORBIDDEN.value())
-							.body(BaseResponseDto.of(HttpStatus.FORBIDDEN.value(), "jpg, jpeg, png의 이미지 파일만 업로드해주세요."));
-				}
-
-				String imgPath = s3Service.upload(requestDto.getPicture(), file);
-				requestDto.setPicture(imgPath);
-
-				
-			} else {
-				return ResponseEntity.status(400).body(BaseResponseDto.of(400, "이미지 파일을 찾지 못 했습니다."));
-			}
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-			return ResponseEntity.status(400).body(BaseResponseDto.of(400, "잘못된 요청입니다."));
-		}
+			@RequestPart(value = "file", required = true) MultipartFile file, @ApiIgnore Errors errors) throws FileUploadException {
+		String imgPath = fileUploadService.uploadFile(file);
+		requestDto.setPicture(imgPath);
 		journalService.register(requestDto);
 		return ResponseEntity.status(200).body(BaseResponseDto.of(201, "Created"));
 	}
