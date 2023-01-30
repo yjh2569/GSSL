@@ -7,8 +7,8 @@ import com.drdoc.BackEnd.api.domain.dto.CommentModifyRequestDto;
 import com.drdoc.BackEnd.api.domain.dto.CommentWriteRequestDto;
 
 public interface CommentService {
-	void writeComment(CommentWriteRequestDto requestDto);
-	void modifyComment(int commentId, CommentModifyRequestDto requestDto);
-	void deleteComment(int commentId);
+	void writeComment(String memberId, CommentWriteRequestDto requestDto);
+	void modifyComment(String memberId, int commentId, CommentModifyRequestDto requestDto);
+	void deleteComment(String memberId, int commentId);
 	List<CommentListDto> getCommentList(int boardId);
 }

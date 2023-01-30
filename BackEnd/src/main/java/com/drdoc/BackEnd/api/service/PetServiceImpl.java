@@ -21,7 +21,6 @@ import com.drdoc.BackEnd.api.repository.PetRepository;
 import com.drdoc.BackEnd.api.repository.JournalRepository;
 import com.drdoc.BackEnd.api.repository.PetKindRepository;
 import com.drdoc.BackEnd.api.repository.UserRepository;
-import com.drdoc.BackEnd.api.util.SecurityUtil;
 
 @Service
 public class PetServiceImpl implements PetService {
@@ -40,8 +39,7 @@ public class PetServiceImpl implements PetService {
 
 	@Override
 	@Transactional
-	public void registerPet(PetRegisterRequestDto petRegisterRequestDto) {
-		String userId = SecurityUtil.getCurrentUsername();
+	public void registerPet(String userId, PetRegisterRequestDto petRegisterRequestDto) {
 		User user = userRepository.findByMemberId(userId)
 				.orElseThrow(() -> new IllegalArgumentException("가입하지 않은 계정입니다."));
 		Kind kind = petTypeRepository.findById(petRegisterRequestDto.getKind_id())
@@ -58,8 +56,7 @@ public class PetServiceImpl implements PetService {
 
 	@Override
 	@Transactional
-	public void modifyPet(int petId, PetModifyRequestDto petModifyRequestDto) {
-		String userId = SecurityUtil.getCurrentUsername();
+	public void modifyPet(String userId, int petId, PetModifyRequestDto petModifyRequestDto) {
 		User user = userRepository.findByMemberId(userId)
 				.orElseThrow(() -> new IllegalArgumentException("가입하지 않은 계정입니다."));
 		Pet pet = petRepository.findById(petId).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 반려동물입니다."));
@@ -82,8 +79,7 @@ public class PetServiceImpl implements PetService {
 
 	@Override
 	@Transactional
-	public void deletePet(int petId) {
-		String userId = SecurityUtil.getCurrentUsername();
+	public void deletePet(String userId, int petId) {
 		User user = userRepository.findByMemberId(userId)
 				.orElseThrow(() -> new IllegalArgumentException("가입하지 않은 계정입니다."));
 		Pet pet = petRepository.findById(petId).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 반려동물입니다."));
@@ -94,8 +90,7 @@ public class PetServiceImpl implements PetService {
 	}
 
 	@Override
-	public List<PetListDto> getPetList() {
-		String memberId = SecurityUtil.getCurrentUsername();
+	public List<PetListDto> getPetList(String memberId) {
 		User user = userRepository.findByMemberId(memberId)
 				.orElseThrow(() -> new IllegalArgumentException("가입하지 않은 계정입니다."));
 		if (user.isLeft())

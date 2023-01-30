@@ -23,6 +23,7 @@ import com.drdoc.BackEnd.api.domain.dto.WalkModifyRequestDto;
 import com.drdoc.BackEnd.api.domain.dto.WalkRegisterRequestDto;
 import com.drdoc.BackEnd.api.domain.dto.WalkTimeResponseDto;
 import com.drdoc.BackEnd.api.service.WalkService;
+import com.drdoc.BackEnd.api.util.SecurityUtil;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -48,7 +49,8 @@ public class WalkController {
 			@ApiResponse(code = 500, message = "서버 오류") })
 	public ResponseEntity<BaseResponseDto> register(@RequestBody @Valid WalkRegisterRequestDto requestDto,
 			@ApiIgnore Errors errors) {
-		walkService.register(requestDto);
+		String memberId = SecurityUtil.getCurrentUsername();
+		walkService.register(memberId, requestDto);
 		return ResponseEntity.status(200).body(BaseResponseDto.of(201, "Created"));
 	}
 
@@ -59,7 +61,8 @@ public class WalkController {
 			@ApiResponse(code = 500, message = "서버 오류") })
 	public ResponseEntity<BaseResponseDto> modify(@PathVariable int walkId,
 			@RequestBody @Valid WalkModifyRequestDto requestDto, @ApiIgnore Errors errors) {
-		walkService.modify(walkId, requestDto);
+		String memberId = SecurityUtil.getCurrentUsername();
+		walkService.modify(memberId, walkId, requestDto);
 		return ResponseEntity.status(200).body(BaseResponseDto.of(200, "Modified"));
 	}
 
@@ -88,7 +91,8 @@ public class WalkController {
 	@ApiResponses({ @ApiResponse(code = 200, message = "산책 기록 조회"), @ApiResponse(code = 400, message = "잘못된 요청입니다."),
 			@ApiResponse(code = 401, message = "인증이 필요합니다."), @ApiResponse(code = 500, message = "서버 오류") })
 	public ResponseEntity<WalkListResponseDto> getList() {
-		return ResponseEntity.status(200).body(WalkListResponseDto.of(200, "Success", walkService.listAll()));
+		String memberId = SecurityUtil.getCurrentUsername();
+		return ResponseEntity.status(200).body(WalkListResponseDto.of(200, "Success", walkService.listAll(memberId)));
 	}
 
 	@ApiOperation(value = "산책 기록 상세 조회", notes = "내가 작성한 산책 기록을 상세 조회")

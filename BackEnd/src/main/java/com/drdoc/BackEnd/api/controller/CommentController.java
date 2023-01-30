@@ -22,6 +22,7 @@ import com.drdoc.BackEnd.api.domain.dto.CommentListResponseDto;
 import com.drdoc.BackEnd.api.domain.dto.CommentModifyRequestDto;
 import com.drdoc.BackEnd.api.domain.dto.CommentWriteRequestDto;
 import com.drdoc.BackEnd.api.service.CommentService;
+import com.drdoc.BackEnd.api.util.SecurityUtil;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -45,7 +46,8 @@ public class CommentController {
 			@ApiResponse(code = 500, message = "서버 오류") })
 	public ResponseEntity<BaseResponseDto> writeComment(
 			@Valid @RequestBody CommentWriteRequestDto requestDto) {
-		commentService.writeComment(requestDto);
+		String memberId = SecurityUtil.getCurrentUsername();
+		commentService.writeComment(memberId, requestDto);
 		return ResponseEntity.status(201).body(BaseResponseDto.of(201, "Created"));
 	}
 	
@@ -57,7 +59,8 @@ public class CommentController {
 			@ApiResponse(code = 403, message = "댓글 수정 권한이 없습니다."), @ApiResponse(code = 500, message = "서버 오류") })
 	public ResponseEntity<BaseResponseDto> modifyComment(
 			@PathVariable("commentId") int commentId, @Valid @RequestBody CommentModifyRequestDto requestDto) {
-		commentService.modifyComment(commentId, requestDto);
+		String memberId = SecurityUtil.getCurrentUsername();
+		commentService.modifyComment(memberId, commentId, requestDto);
 		return ResponseEntity.status(200).body(BaseResponseDto.of(200, "Modified"));
 	}
 	
@@ -69,7 +72,8 @@ public class CommentController {
 			@ApiResponse(code = 403, message = "댓글 삭제 권한이 없습니다."), @ApiResponse(code = 500, message = "서버 오류") })
 	public ResponseEntity<BaseResponseDto> deleteComment(
 			@PathVariable("commentId") int commentId) {
-		commentService.deleteComment(commentId);
+		String memberId = SecurityUtil.getCurrentUsername();
+		commentService.deleteComment(memberId, commentId);
 		return ResponseEntity.status(200).body(BaseResponseDto.of(200, "Deleted"));
 	}
 	

@@ -24,6 +24,7 @@ import com.drdoc.BackEnd.api.domain.dto.JournalListResponseDto;
 import com.drdoc.BackEnd.api.domain.dto.JournalRequestDto;
 import com.drdoc.BackEnd.api.service.FileUploadService;
 import com.drdoc.BackEnd.api.service.JournalService;
+import com.drdoc.BackEnd.api.util.SecurityUtil;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -53,9 +54,10 @@ public class JournalController {
 			@ApiResponse(code = 500, message = "서버 오류") })
 	public ResponseEntity<BaseResponseDto> register(@RequestPart(value = "journal") @Valid JournalRequestDto requestDto,
 			@RequestPart(value = "file", required = true) MultipartFile file, @ApiIgnore Errors errors) throws FileUploadException {
+		String memberId = SecurityUtil.getCurrentUsername();
 		String imgPath = fileUploadService.uploadFile(file);
 		requestDto.setPicture(imgPath);
-		journalService.register(requestDto);
+		journalService.register(memberId, requestDto);
 		return ResponseEntity.status(200).body(BaseResponseDto.of(201, "Created"));
 	}
 
@@ -68,7 +70,8 @@ public class JournalController {
 			@ApiResponse(code = 500, message = "서버 오류") })
 	public ResponseEntity<BaseResponseDto> modify(@PathVariable int journalId,
 			@RequestBody @Valid JournalRequestDto requestDto, @ApiIgnore Errors errors) {
-		journalService.modify(journalId, requestDto);
+		String memberId = SecurityUtil.getCurrentUsername();
+		journalService.modify(memberId, journalId, requestDto);
 		return ResponseEntity.status(200).body(BaseResponseDto.of(200, "Modified"));
 	}
 
@@ -78,7 +81,8 @@ public class JournalController {
 			@ApiResponse(code = 401, message = "인증이 필요합니다."), @ApiResponse(code = 403, message = "권한이 없습니다."),
 			@ApiResponse(code = 500, message = "서버 오류") })
 	public ResponseEntity<BaseResponseDto> delete(@PathVariable int journalId) {
-		journalService.delete(journalId);
+		String memberId = SecurityUtil.getCurrentUsername();
+		journalService.delete(memberId, journalId);
 		return ResponseEntity.status(200).body(BaseResponseDto.of(200, "Deleted"));
 	}
 
@@ -97,7 +101,8 @@ public class JournalController {
 	@ApiResponses({ @ApiResponse(code = 200, message = "일지 조회"), @ApiResponse(code = 400, message = "잘못된 요청입니다."),
 			@ApiResponse(code = 401, message = "인증이 필요합니다."), @ApiResponse(code = 500, message = "서버 오류") })
 	public ResponseEntity<JournalListResponseDto> getList() {
-		return ResponseEntity.status(200).body(JournalListResponseDto.of(200, "Success", journalService.listAll()));
+		String memberId = SecurityUtil.getCurrentUsername();
+		return ResponseEntity.status(200).body(JournalListResponseDto.of(200, "Success", journalService.listAll(memberId)));
 	}
 
 	@ApiOperation(value = "일지 상세 조회", notes = "내가 작성한 일지를 조회하여 썸네일 사진, 작성날짜 등을 출력")

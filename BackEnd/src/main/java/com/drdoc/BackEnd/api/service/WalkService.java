@@ -11,10 +11,10 @@ import com.drdoc.BackEnd.api.domain.dto.WalkTimeDto;
 public interface WalkService {
 
 	// 산책 기록 등록
-	void register(WalkRegisterRequestDto request);
+	void register(String memberId, WalkRegisterRequestDto request);
 
 	// 산책 기록 수정
-	void modify(Integer walkId, WalkModifyRequestDto request);
+	void modify(String memberId, Integer walkId, WalkModifyRequestDto request);
 
 	// 산책 기록 삭제
 	void delete(int walkId);
@@ -23,7 +23,7 @@ public interface WalkService {
 	void batchDelete(WalkBatchDeleteRequestDto walks);
 
 	// 산책 기록 전체 조회
-	Page<WalkDetailDto> listAll();
+	Page<WalkDetailDto> listAll(String memberId);
 	
 	// 산책 기록 상세 조회
 	WalkDetailDto detail(int walkId);

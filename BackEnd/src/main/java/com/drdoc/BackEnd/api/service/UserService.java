@@ -1,5 +1,6 @@
 package com.drdoc.BackEnd.api.service;
 
+import com.drdoc.BackEnd.api.domain.User;
 import com.drdoc.BackEnd.api.domain.dto.RefreshTokenDto;
 import com.drdoc.BackEnd.api.domain.dto.TokenDto;
 import com.drdoc.BackEnd.api.domain.dto.UserInfoDto;
@@ -9,7 +10,7 @@ import com.drdoc.BackEnd.api.domain.dto.UserRegisterRequestDto;
 
 public interface UserService {
     //회원가입
-	void register(UserRegisterRequestDto user);
+	User register(UserRegisterRequestDto user);
 
     //로그인
 	TokenDto login(UserLoginRequestDto userLoginRequestDto);
@@ -24,7 +25,7 @@ public interface UserService {
     UserInfoDto getUserDetail(String memberId);
 
     // 회원정보 수정
-    void modify(UserModifyRequestDto requestDto);
+    User modify(String memberId, UserModifyRequestDto requestDto);
     
     // 메인 반려동물 수정
     void modifyPet(String memberId, int petId);
@@ -34,7 +35,7 @@ public interface UserService {
 	
     TokenDto reissue(RefreshTokenDto tokenRequestDto);
 
-	String getProfilePicture();
+	String getProfilePicture(String memberId);
 	
 	void quit(String memberId);
 

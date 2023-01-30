@@ -126,14 +126,15 @@ public class UserController {
 			@ApiResponse(code = 401, message = "인증이 만료되어 로그인이 필요합니다."), @ApiResponse(code = 500, message = "서버 오류") })
 	public ResponseEntity<BaseResponseDto> modify(@RequestPart(value = "user") @Valid UserModifyRequestDto requestDto,
 			@RequestPart(value = "file", required = false) MultipartFile file) throws FileUploadException {
-		String currentFilePath = userService.getProfilePicture();
+		String memberId = SecurityUtil.getCurrentUsername();
+		String currentFilePath = userService.getProfilePicture(memberId);
 		if (file != null) {
 			String imgPath = fileUploadService.modifyFile(currentFilePath, file);
 			requestDto.setProfile_pic(imgPath);
 		} else {
 			fileUploadService.deleteFile(currentFilePath);
 		}
-		userService.modify(requestDto);
+		userService.modify(memberId, requestDto);
 		return ResponseEntity.status(200).body(BaseResponseDto.of(200, "Modified"));
 	}
 	

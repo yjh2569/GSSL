@@ -27,7 +27,6 @@ import com.drdoc.BackEnd.api.repository.PetRepository;
 import com.drdoc.BackEnd.api.repository.UserRepository;
 import com.drdoc.BackEnd.api.repository.WalkPetRepository;
 import com.drdoc.BackEnd.api.repository.WalkRepository;
-import com.drdoc.BackEnd.api.util.SecurityUtil;
 
 import lombok.RequiredArgsConstructor;
 
@@ -41,9 +40,9 @@ public class WalkServiceImpl implements WalkService {
 
 	// 산책 기록 등록
 	@Transactional
-	public void register(WalkRegisterRequestDto request) {
+	public void register(String memberId, WalkRegisterRequestDto request) {
 		// 산책 테이블에 저장
-		User user = getCurrentUser();
+		User user = getUser(memberId);
 		Walk walk = new Walk(request, user);
 		walkRepository.save(walk);
 
@@ -57,10 +56,10 @@ public class WalkServiceImpl implements WalkService {
 
 	// 산책 기록 수정
 	@Transactional
-	public void modify(Integer walkId, WalkModifyRequestDto request) {
+	public void modify(String memberId, Integer walkId, WalkModifyRequestDto request) {
 		Walk walk = walkRepository.findById(walkId).get();
 
-		User user = getCurrentUser();
+		User user = getUser(memberId);
 		if (!walk.getUser().equals(user)) {
 			new IllegalArgumentException("산책 기록에 접근 권한이 없습니다.");
 		}
@@ -103,8 +102,8 @@ public class WalkServiceImpl implements WalkService {
 	}
 
 	// 산책 기록 전체 조회
-	public Page<WalkDetailDto> listAll() {
-		User user = getCurrentUser();
+	public Page<WalkDetailDto> listAll(String memberId) {
+		User user = getUser(memberId);
 		Sort sort = Sort.by(Sort.Direction.DESC, "id");
 		List<Walk> list = walkRepository.findByUser(user, sort).stream().collect(Collectors.toList());
 		List<WalkDetailDto> result = list.stream().map(walk -> new WalkDetailDto(walk, getPetList(walk.getId())))
@@ -126,8 +125,7 @@ public class WalkServiceImpl implements WalkService {
 		return petList;
 	}
 
-	public User getCurrentUser() {
-		String memberId = SecurityUtil.getCurrentUsername();
+	public User getUser(String memberId) {
 		Optional<User> user = userRepository.findByMemberId(memberId);
 		return user.get();
 	}

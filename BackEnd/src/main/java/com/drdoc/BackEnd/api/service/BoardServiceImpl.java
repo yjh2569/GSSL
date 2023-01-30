@@ -26,7 +26,6 @@ import com.drdoc.BackEnd.api.repository.BoardRepository;
 import com.drdoc.BackEnd.api.repository.BoardTypeRepository;
 import com.drdoc.BackEnd.api.repository.CommentRepository;
 import com.drdoc.BackEnd.api.repository.UserRepository;
-import com.drdoc.BackEnd.api.util.SecurityUtil;
 
 @Service
 public class BoardServiceImpl implements BoardService {
@@ -45,8 +44,7 @@ public class BoardServiceImpl implements BoardService {
 
 	@Override
 	@Transactional
-	public void writeBoard(BoardWriteRequestDto boardWriteRequestDto) {
-		String userId = SecurityUtil.getCurrentUsername();
+	public void writeBoard(String userId, BoardWriteRequestDto boardWriteRequestDto) {
 		User user = userRepository.findByMemberId(userId)
 				.orElseThrow(() -> new IllegalArgumentException("가입하지 않은 계정입니다."));
 		BoardType boardType = boardTypeRepository.findById(boardWriteRequestDto.getType_id())
@@ -59,8 +57,7 @@ public class BoardServiceImpl implements BoardService {
 
 	@Override
 	@Transactional
-	public void modifyBoard(int boardId, BoardModifyRequestDto boardModifyRequestDto) {
-		String userId = SecurityUtil.getCurrentUsername();
+	public void modifyBoard(String userId, int boardId, BoardModifyRequestDto boardModifyRequestDto) {
 		User user = userRepository.findByMemberId(userId)
 				.orElseThrow(() -> new IllegalArgumentException("가입하지 않은 계정입니다."));
 		Board board = boardRepository.findById(boardId)
@@ -83,8 +80,7 @@ public class BoardServiceImpl implements BoardService {
 
 	@Override
 	@Transactional
-	public void deleteBoard(int boardId) {
-		String userId = SecurityUtil.getCurrentUsername();
+	public void deleteBoard(String userId, int boardId) {
 		User user = userRepository.findByMemberId(userId)
 				.orElseThrow(() -> new IllegalArgumentException("가입하지 않은 계정입니다."));
 		Board board = boardRepository.findById(boardId)

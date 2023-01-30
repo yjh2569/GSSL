@@ -27,6 +27,7 @@ import com.drdoc.BackEnd.api.domain.dto.PetModifyRequestDto;
 import com.drdoc.BackEnd.api.domain.dto.PetRegisterRequestDto;
 import com.drdoc.BackEnd.api.service.FileUploadService;
 import com.drdoc.BackEnd.api.service.PetService;
+import com.drdoc.BackEnd.api.util.SecurityUtil;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -55,9 +56,10 @@ public class PetController {
 	public ResponseEntity<BaseResponseDto> registerPet(
 			@Valid @RequestPart(value = "pet") PetRegisterRequestDto petRegisterRequestDto,
 			@RequestPart(value = "file", required = false) MultipartFile file) throws FileUploadException {
+		String memberId = SecurityUtil.getCurrentUsername();
 		String imgPath = fileUploadService.uploadFile(file);
 		petRegisterRequestDto.setAnimal_pic(imgPath);
-		petService.registerPet(petRegisterRequestDto);
+		petService.registerPet(memberId, petRegisterRequestDto);
 		return ResponseEntity.status(201).body(BaseResponseDto.of(201, "Created"));
 	}
 
@@ -72,6 +74,7 @@ public class PetController {
 	public ResponseEntity<BaseResponseDto> modifyPet(@PathVariable("petId") int petId,
 			@Valid @RequestPart(value = "pet") PetModifyRequestDto petModifyRequestDto,
 			@RequestPart(value = "file", required = false) MultipartFile file) throws FileUploadException {
+		String memberId = SecurityUtil.getCurrentUsername();
 		String currentFilePath = petService.getPetImage(petId);
 		if (file != null) {
 			String imgPath = fileUploadService.modifyFile(currentFilePath, file);
@@ -79,7 +82,7 @@ public class PetController {
 		} else {
 			fileUploadService.deleteFile(currentFilePath);
 		}
-		petService.modifyPet(petId, petModifyRequestDto);
+		petService.modifyPet(memberId, petId, petModifyRequestDto);
 		return ResponseEntity.status(200).body(BaseResponseDto.of(200, "Modified"));
 	}
 	
@@ -92,11 +95,12 @@ public class PetController {
 			@ApiResponse(code = 403, message = "게시글 삭제 권한이 없습니다."),
 			@ApiResponse(code = 500, message = "서버 오류") })
 	public ResponseEntity<BaseResponseDto> deletePet(@PathVariable("petId") int petId) throws IOException {
+		String memberId = SecurityUtil.getCurrentUsername();
 		String image = petService.getPetImage(petId);
 		if (image != null && !"".equals(image)) {
 			fileUploadService.deleteFile(image);
 		}
-		petService.deletePet(petId);
+		petService.deletePet(memberId, petId);
 		return ResponseEntity.status(200).body(BaseResponseDto.of(200, "Deleted"));
 	}
 	
@@ -108,7 +112,8 @@ public class PetController {
 		@ApiResponse(code = 401, message = "인증이 필요합니다."),
 		@ApiResponse(code = 500, message = "서버 오류") })
 	public ResponseEntity<PetListResponseDto> getPetList() {
-		return ResponseEntity.status(200).body(PetListResponseDto.of(200, "Success", petService.getPetList()));
+		String memberId = SecurityUtil.getCurrentUsername();
+		return ResponseEntity.status(200).body(PetListResponseDto.of(200, "Success", petService.getPetList(memberId)));
 	}
 	
 	@GetMapping("/{petId}")

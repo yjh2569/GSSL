@@ -10,19 +10,19 @@ import com.drdoc.BackEnd.api.domain.dto.JournalThumbnailDto;
 public interface JournalService {
 
 	// 일지 등록
-	void register(JournalRequestDto request);
+	void register(String memberId, JournalRequestDto request);
 
 	// 일지 수정
-	void modify(Integer journalId, JournalRequestDto request);
+	void modify(String memberId, Integer journalId, JournalRequestDto request);
 
 	// 일지 삭제
-	void delete(int journalId);
+	void delete(String memberId, int journalId);
 
 	// 일지 일괄 삭제
 	void batchDelete(JournalBatchDeleteRequestDto Journals);
 
 	// 일지 전체 조회
-	Page<JournalThumbnailDto> listAll();
+	Page<JournalThumbnailDto> listAll(String memberId);
 	
 	// 일지 상세 조회
 	JournalDetailDto detail(int journalId);

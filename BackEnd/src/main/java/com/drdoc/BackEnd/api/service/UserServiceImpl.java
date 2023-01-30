@@ -25,7 +25,6 @@ import com.drdoc.BackEnd.api.jwt.TokenProvider;
 import com.drdoc.BackEnd.api.repository.PetRepository;
 import com.drdoc.BackEnd.api.repository.RefreshTokenRepository;
 import com.drdoc.BackEnd.api.repository.UserRepository;
-import com.drdoc.BackEnd.api.util.SecurityUtil;
 
 import lombok.RequiredArgsConstructor;
 
@@ -41,20 +40,19 @@ public class UserServiceImpl implements UserService {
 
 	// 회원가입
 	@Override
-	public void register(UserRegisterRequestDto requestDto) {
+	public User register(UserRegisterRequestDto requestDto) {
 		checkDuplication(requestDto);
 		User user = User.builder().memberId(requestDto.getMember_id()).nickname(requestDto.getNickname())
 				.password(encoder.encode(requestDto.getPassword().toLowerCase())).email(requestDto.getEmail())
 				.phone(requestDto.getPhone()).gender(requestDto.getGender()).profilePic(requestDto.getProfile_pic())
 				.introduce(requestDto.getIntroduce()).build();
-		repository.save(user);
+		return repository.save(user);
 	}
 
 	// memberId 중복체크
 	public boolean checkMemberId(String memberId) {
 		Optional<User> user = repository.findByMemberId(memberId);
 		return !user.isPresent();
-
 	};
 
 	// 닉네임 중복체크
@@ -62,15 +60,6 @@ public class UserServiceImpl implements UserService {
 		Optional<User> user = repository.findByNickname(nickname);
 		return !user.isPresent();
 	};
-
-	// 회원정보 수정
-//    void modify(User user); // dto로 추가예정
-
-	// 비밀번호 수정
-//    void modifyPassword(String memberId, String password);
-
-	// 삭제
-//    void delete(String memberId);
 
 	@Transactional
 	public TokenDto login(UserLoginRequestDto userLoginRequestDto) {
@@ -81,8 +70,6 @@ public class UserServiceImpl implements UserService {
 		// 1. Login ID/PW 를 기반으로 AuthenticationToken 생성
 		UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
 				userLoginRequestDto.getMember_id(), userLoginRequestDto.getPassword().toLowerCase());
-		System.out.println(encoder.encode(userLoginRequestDto.getPassword().toLowerCase()));
-		System.out.println(userLoginRequestDto.getPassword());
 		// 2. 실제로 검증 (사용자 비밀번호 체크) 이 이루어지는 부분
 		// authenticate 메서드가 실행이 될 때 CustomUserDetailsService 에서 만들었던 loadUserByUsername
 		// 메서드가 실행됨
@@ -151,14 +138,13 @@ public class UserServiceImpl implements UserService {
 	}
 	
 	@Override
-	public void modify(UserModifyRequestDto requestDto) {
-		String memberId = SecurityUtil.getCurrentUsername();
+	public User modify(String memberId, UserModifyRequestDto requestDto) {
 		checkModifyDuplication(memberId, requestDto);
 		User user = repository.findByMemberId(memberId)
 				.orElseThrow(() -> new IllegalArgumentException("가입하지 않은 계정입니다."));
 		requestDto.setPassword(encoder.encode(requestDto.getPassword()));
 		user.modify(requestDto);
-		repository.save(user);
+		return repository.save(user);
 	}
 	
 	@Override
@@ -180,8 +166,7 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public String getProfilePicture() {
-		String memberId = SecurityUtil.getCurrentUsername();
+	public String getProfilePicture(String memberId) {
 		User user = repository.findByMemberId(memberId)
 				.orElseThrow(() -> new IllegalArgumentException("가입하지 않은 계정입니다."));
 		return user.getProfilePic();

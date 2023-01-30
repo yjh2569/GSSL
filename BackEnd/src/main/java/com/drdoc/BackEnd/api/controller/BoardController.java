@@ -27,6 +27,7 @@ import com.drdoc.BackEnd.api.domain.dto.BoardModifyRequestDto;
 import com.drdoc.BackEnd.api.domain.dto.BoardWriteRequestDto;
 import com.drdoc.BackEnd.api.service.BoardService;
 import com.drdoc.BackEnd.api.service.FileUploadService;
+import com.drdoc.BackEnd.api.util.SecurityUtil;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -53,9 +54,10 @@ public class BoardController {
 	public ResponseEntity<BaseResponseDto> writeBoard(
 			@Valid @RequestPart(value = "board") BoardWriteRequestDto requestDto,
 			@RequestPart(value = "file", required = false) MultipartFile file) throws FileUploadException {
+		String memberId = SecurityUtil.getCurrentUsername();
 		String ImgPath = fileUploadService.uploadFile(file);
 		requestDto.setImage(ImgPath);
-		boardService.writeBoard(requestDto);
+		boardService.writeBoard(memberId, requestDto);
 		return ResponseEntity.status(201).body(BaseResponseDto.of(201, "Created"));
 	}
 
@@ -68,6 +70,7 @@ public class BoardController {
 	public ResponseEntity<BaseResponseDto> modifyBoard(@PathVariable("boardId") int boardId,
 			@Valid @RequestPart(value = "board") BoardModifyRequestDto requestDto,
 			@RequestPart(value = "file", required = false) MultipartFile file) throws FileUploadException {
+		String memberId = SecurityUtil.getCurrentUsername();
 		String currentFilePath = boardService.getBoardImage(boardId);
 		if (file != null) {
 			String imgPath = fileUploadService.modifyFile(currentFilePath, file);
@@ -75,7 +78,7 @@ public class BoardController {
 		} else {
 			fileUploadService.deleteFile(currentFilePath);
 		}
-		boardService.modifyBoard(boardId, requestDto);
+		boardService.modifyBoard(memberId, boardId, requestDto);
 		return ResponseEntity.status(200).body(BaseResponseDto.of(200, "Modified"));
 	}
 
@@ -86,11 +89,12 @@ public class BoardController {
 			@ApiResponse(code = 401, message = "인증이 만료되어 로그인이 필요합니다."),
 			@ApiResponse(code = 403, message = "게시글 삭제 권한이 없습니다."), @ApiResponse(code = 500, message = "서버 오류") })
 	public ResponseEntity<BaseResponseDto> deleteBoard(@PathVariable("boardId") int boardId) throws FileUploadException {
+		String memberId = SecurityUtil.getCurrentUsername();
 		String image = boardService.getBoardImage(boardId);
 		if (image != null && !"".equals(image)) {
 			fileUploadService.deleteFile(image);
 		}
-		boardService.deleteBoard(boardId);
+		boardService.deleteBoard(memberId, boardId);
 		return ResponseEntity.status(200).body(BaseResponseDto.of(200, "Deleted"));
 	}
 

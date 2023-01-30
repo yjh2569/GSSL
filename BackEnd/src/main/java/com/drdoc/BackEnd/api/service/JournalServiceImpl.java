@@ -17,7 +17,6 @@ import com.drdoc.BackEnd.api.domain.dto.JournalRequestDto;
 import com.drdoc.BackEnd.api.domain.dto.JournalThumbnailDto;
 import com.drdoc.BackEnd.api.repository.JournalRepository;
 import com.drdoc.BackEnd.api.repository.UserRepository;
-import com.drdoc.BackEnd.api.util.SecurityUtil;
 
 import lombok.RequiredArgsConstructor;
 
@@ -29,18 +28,18 @@ public class JournalServiceImpl implements JournalService {
 
 	// 일지 등록
 	@Override
-	public void register(JournalRequestDto request) {
-		User user = getCurrentUser();
+	public void register(String memberId, JournalRequestDto request) {
+		User user = getUser(memberId);
 		Journal journal = new Journal(request, user);
 		repository.save(journal);
 	}
 
 	// 일지 수정
 	@Override
-	public void modify(Integer journalId, JournalRequestDto request) {
+	public void modify(String memberId, Integer journalId, JournalRequestDto request) {
 		Journal journal = repository.findById(journalId)
 				.orElseThrow(() -> new IllegalArgumentException("일지를 찾을 수 없습니다."));
-		if (checkOwner(journal)) {
+		if (checkOwner(memberId, journal)) {
 			journal.modify(request);
 			repository.save(journal);
 		}
@@ -48,10 +47,10 @@ public class JournalServiceImpl implements JournalService {
 
 	// 일지 삭제
 	@Override
-	public void delete(int journalId) {
+	public void delete(String memberId, int journalId) {
 		Journal journal = repository.findById(journalId)
 				.orElseThrow(() -> new IllegalArgumentException("일지를 찾을 수 없습니다."));
-		if (checkOwner(journal)) {
+		if (checkOwner(memberId, journal)) {
 			repository.deleteById(journalId);
 		}
 	}
@@ -64,8 +63,8 @@ public class JournalServiceImpl implements JournalService {
 
 	// 일지 전체 조회
 	@Override
-	public Page<JournalThumbnailDto> listAll() {
-		User user = getCurrentUser();
+	public Page<JournalThumbnailDto> listAll(String memberId) {
+		User user = getUser(memberId);
 		Sort sort = Sort.by(Sort.Direction.DESC, "id");
 		List<JournalThumbnailDto> list = repository.findByUserId(user.getId(), sort).stream()
 				.map(JournalThumbnailDto::new).collect(Collectors.toList());
@@ -83,8 +82,7 @@ public class JournalServiceImpl implements JournalService {
 
 	}
 
-	public boolean checkOwner(Journal journal) {
-		String memberId = SecurityUtil.getCurrentUsername();
+	public boolean checkOwner(String memberId, Journal journal) {
 		Optional<User> user = userRepository.findByMemberId(memberId);
 		if (user.get().equals(journal.getUser()) && !memberId.isEmpty()) {
 			return true;
@@ -92,8 +90,7 @@ public class JournalServiceImpl implements JournalService {
 		return false;
 	}
 
-	public User getCurrentUser() {
-		String memberId = SecurityUtil.getCurrentUsername();
+	public User getUser(String memberId) {
 		Optional<User> user = userRepository.findByMemberId(memberId);
 		return user.get();
 	}
