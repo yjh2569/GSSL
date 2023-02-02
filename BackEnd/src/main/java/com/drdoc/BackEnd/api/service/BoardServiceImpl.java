@@ -44,7 +44,7 @@ public class BoardServiceImpl implements BoardService {
 
 	@Override
 	@Transactional
-	public void writeBoard(String userId, BoardWriteRequestDto boardWriteRequestDto) {
+	public Board writeBoard(String userId, BoardWriteRequestDto boardWriteRequestDto) {
 		User user = userRepository.findByMemberId(userId)
 				.orElseThrow(() -> new IllegalArgumentException("가입하지 않은 계정입니다."));
 		BoardType boardType = boardTypeRepository.findById(boardWriteRequestDto.getType_id())
@@ -52,12 +52,12 @@ public class BoardServiceImpl implements BoardService {
 		Board board = Board.builder().user(user).type(boardType).title(boardWriteRequestDto.getTitle())
 				.content(boardWriteRequestDto.getContent()).image(boardWriteRequestDto.getImage())
 				.createdTime(LocalDateTime.now()).comments(new ArrayList<>()).build();
-		boardRepository.save(board);
+		return boardRepository.save(board);
 	}
 
 	@Override
 	@Transactional
-	public void modifyBoard(String userId, int boardId, BoardModifyRequestDto boardModifyRequestDto) {
+	public Board modifyBoard(String userId, int boardId, BoardModifyRequestDto boardModifyRequestDto) {
 		User user = userRepository.findByMemberId(userId)
 				.orElseThrow(() -> new IllegalArgumentException("가입하지 않은 계정입니다."));
 		Board board = boardRepository.findById(boardId)
@@ -67,7 +67,7 @@ public class BoardServiceImpl implements BoardService {
 		if (user.getId() != board.getUser().getId())
 			throw new AccessDeniedException("권한이 없습니다.");
 		board.modify(boardModifyRequestDto, boardType);
-		boardRepository.save(board);
+		return boardRepository.save(board);
 	}
 
 	@Override

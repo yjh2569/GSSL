@@ -39,7 +39,7 @@ public class PetServiceImpl implements PetService {
 
 	@Override
 	@Transactional
-	public void registerPet(String userId, PetRegisterRequestDto petRegisterRequestDto) {
+	public Pet registerPet(String userId, PetRegisterRequestDto petRegisterRequestDto) {
 		User user = userRepository.findByMemberId(userId)
 				.orElseThrow(() -> new IllegalArgumentException("가입하지 않은 계정입니다."));
 		Kind kind = petTypeRepository.findById(petRegisterRequestDto.getKind_id())
@@ -51,12 +51,12 @@ public class PetServiceImpl implements PetService {
 				.weight(petRegisterRequestDto.getWeight()).animalPic(petRegisterRequestDto.getAnimal_pic())
 				.death(petRegisterRequestDto.isDeath()).diseases(petRegisterRequestDto.getDiseases())
 				.description(petRegisterRequestDto.getDescription()).build();
-		petRepository.save(pet);
+		return petRepository.save(pet);
 	}
 
 	@Override
 	@Transactional
-	public void modifyPet(String userId, int petId, PetModifyRequestDto petModifyRequestDto) {
+	public Pet modifyPet(String userId, int petId, PetModifyRequestDto petModifyRequestDto) {
 		User user = userRepository.findByMemberId(userId)
 				.orElseThrow(() -> new IllegalArgumentException("가입하지 않은 계정입니다."));
 		Pet pet = petRepository.findById(petId).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 반려동물입니다."));
@@ -66,8 +66,7 @@ public class PetServiceImpl implements PetService {
 		if (user.getId() != pet.getUser().getId())
 			throw new AccessDeniedException("권한이 없습니다.");
 		pet.modify(petModifyRequestDto, kind);
-		petRepository.save(pet);
-
+		return petRepository.save(pet);
 	}
 
 	@Override

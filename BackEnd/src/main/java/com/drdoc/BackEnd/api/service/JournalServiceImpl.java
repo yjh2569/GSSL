@@ -1,12 +1,12 @@
 package com.drdoc.BackEnd.api.service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import com.drdoc.BackEnd.api.domain.Journal;
@@ -28,31 +28,39 @@ public class JournalServiceImpl implements JournalService {
 
 	// 일지 등록
 	@Override
-	public void register(String memberId, JournalRequestDto request) {
-		User user = getUser(memberId);
+	public Journal register(String memberId, JournalRequestDto request) {
+		User user = userRepository.findByMemberId(memberId)
+				.orElseThrow(() -> new IllegalArgumentException("가입하지 않은 계정입니다."));
 		Journal journal = new Journal(request, user);
-		repository.save(journal);
+		return repository.save(journal);
 	}
 
 	// 일지 수정
 	@Override
-	public void modify(String memberId, Integer journalId, JournalRequestDto request) {
+	public Journal modify(String memberId, Integer journalId, JournalRequestDto request) {
+		User user = userRepository.findByMemberId(memberId)
+				.orElseThrow(() -> new IllegalArgumentException("가입하지 않은 계정입니다."));
 		Journal journal = repository.findById(journalId)
 				.orElseThrow(() -> new IllegalArgumentException("일지를 찾을 수 없습니다."));
-		if (checkOwner(memberId, journal)) {
-			journal.modify(request);
-			repository.save(journal);
+		if (user.getId() != journal.getUser().getId()) {
+			throw new AccessDeniedException("권한이 없습니다.");
 		}
+		journal.modify(request);
+		return repository.save(journal);
+		
 	}
 
 	// 일지 삭제
 	@Override
 	public void delete(String memberId, int journalId) {
+		User user = userRepository.findByMemberId(memberId)
+				.orElseThrow(() -> new IllegalArgumentException("가입하지 않은 계정입니다."));
 		Journal journal = repository.findById(journalId)
 				.orElseThrow(() -> new IllegalArgumentException("일지를 찾을 수 없습니다."));
-		if (checkOwner(memberId, journal)) {
-			repository.deleteById(journalId);
+		if (user.getId() != journal.getUser().getId()) {
+			throw new AccessDeniedException("권한이 없습니다.");
 		}
+		repository.deleteById(journalId);
 	}
 
 	// 일지 일괄 삭제
@@ -64,7 +72,8 @@ public class JournalServiceImpl implements JournalService {
 	// 일지 전체 조회
 	@Override
 	public Page<JournalThumbnailDto> listAll(String memberId) {
-		User user = getUser(memberId);
+		User user = userRepository.findByMemberId(memberId)
+				.orElseThrow(() -> new IllegalArgumentException("가입하지 않은 계정입니다."));
 		Sort sort = Sort.by(Sort.Direction.DESC, "id");
 		List<JournalThumbnailDto> list = repository.findByUserId(user.getId(), sort).stream()
 				.map(JournalThumbnailDto::new).collect(Collectors.toList());
@@ -77,21 +86,7 @@ public class JournalServiceImpl implements JournalService {
 	public JournalDetailDto detail(int journalId) {
 		Journal journal = repository.findById(journalId)
 				.orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
-
 		return new JournalDetailDto(journal);
 
-	}
-
-	public boolean checkOwner(String memberId, Journal journal) {
-		Optional<User> user = userRepository.findByMemberId(memberId);
-		if (user.get().equals(journal.getUser()) && !memberId.isEmpty()) {
-			return true;
-		}
-		return false;
-	}
-
-	public User getUser(String memberId) {
-		Optional<User> user = userRepository.findByMemberId(memberId);
-		return user.get();
 	}
 }

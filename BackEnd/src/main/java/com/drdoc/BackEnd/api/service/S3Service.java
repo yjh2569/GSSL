@@ -26,7 +26,8 @@ import java.util.Date;
 public class S3Service implements FileUploadService {
     private AmazonS3 s3Client;
     public static final String CLOUD_FRONT_DOMAIN_NAME ="a204drdoc.s3.ap-northeast-2.amazonaws.com";
-
+    private static long FILE_SIZE_LIMIT = 10*1024*1024; // 10MB 
+    
     @Value("${cloud.aws.credentials.accessKey}")
     private String accessKey;
 
@@ -57,8 +58,7 @@ public class S3Service implements FileUploadService {
     @Override
     public String modifyFile(String currentFilePath, MultipartFile file) throws FileUploadException {
     	if (file == null) return "";
-    	final int FILE_SIZE_LIMIT = 10*1024*1024;
-    	if (file.getSize() >= 10*1024*1024) throw new FileSizeLimitExceededException("이미지 크기 제한은 10MB 입니다.", file.getSize(), FILE_SIZE_LIMIT);
+    	if (file.getSize() >= FILE_SIZE_LIMIT) throw new FileSizeLimitExceededException("이미지 크기 제한은 10MB 입니다.", file.getSize(), FILE_SIZE_LIMIT);
     	String originFile = file.getOriginalFilename();
 		String originFileExtension = originFile.substring(originFile.lastIndexOf("."));
 		if (!originFileExtension.equalsIgnoreCase(".jpg") && !originFileExtension.equalsIgnoreCase(".png")

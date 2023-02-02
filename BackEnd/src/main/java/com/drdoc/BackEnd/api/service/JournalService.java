@@ -2,6 +2,7 @@ package com.drdoc.BackEnd.api.service;
 
 import org.springframework.data.domain.Page;
 
+import com.drdoc.BackEnd.api.domain.Journal;
 import com.drdoc.BackEnd.api.domain.dto.JournalBatchDeleteRequestDto;
 import com.drdoc.BackEnd.api.domain.dto.JournalDetailDto;
 import com.drdoc.BackEnd.api.domain.dto.JournalRequestDto;
@@ -10,10 +11,10 @@ import com.drdoc.BackEnd.api.domain.dto.JournalThumbnailDto;
 public interface JournalService {
 
 	// 일지 등록
-	void register(String memberId, JournalRequestDto request);
+	Journal register(String memberId, JournalRequestDto request);
 
 	// 일지 수정
-	void modify(String memberId, Integer journalId, JournalRequestDto request);
+	Journal modify(String memberId, Integer journalId, JournalRequestDto request);
 
 	// 일지 삭제
 	void delete(String memberId, int journalId);

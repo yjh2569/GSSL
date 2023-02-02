@@ -3,7 +3,6 @@ package com.drdoc.BackEnd.api.service;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.transaction.Transactional;
@@ -42,13 +41,15 @@ public class WalkServiceImpl implements WalkService {
 	@Transactional
 	public void register(String memberId, WalkRegisterRequestDto request) {
 		// 산책 테이블에 저장
-		User user = getUser(memberId);
+		User user = userRepository.findByMemberId(memberId)
+				.orElseThrow(() -> new IllegalArgumentException("가입하지 않은 계정입니다."));
 		Walk walk = new Walk(request, user);
 		walkRepository.save(walk);
 
 		// 산책동물 테이블에 저장
 		for (int petId : request.getPet_ids()) {
-			Pet pet = petRepository.findById(petId).get();
+			Pet pet = petRepository.findById(petId)
+					.orElseThrow(() -> new IllegalArgumentException("존재하지 않는 반려동물입니다."));
 			WalkPet walkPet = new WalkPet(walk, pet);
 			walkPetRepository.save(walkPet);
 		}
@@ -57,9 +58,10 @@ public class WalkServiceImpl implements WalkService {
 	// 산책 기록 수정
 	@Transactional
 	public void modify(String memberId, Integer walkId, WalkModifyRequestDto request) {
-		Walk walk = walkRepository.findById(walkId).get();
-
-		User user = getUser(memberId);
+		User user = userRepository.findByMemberId(memberId)
+				.orElseThrow(() -> new IllegalArgumentException("가입하지 않은 계정입니다."));
+		Walk walk = walkRepository.findById(walkId)
+				.orElseThrow(() -> new IllegalArgumentException("존재하지 않는 산책 기록입니다."));
 		if (!walk.getUser().equals(user)) {
 			new IllegalArgumentException("산책 기록에 접근 권한이 없습니다.");
 		}
@@ -92,7 +94,7 @@ public class WalkServiceImpl implements WalkService {
 
 	// 산책 기록 삭제
 	public void delete(int walkId) {
-		walkRepository.findById(walkId).orElseThrow(() -> new IllegalArgumentException("산책 기록을 찾을 수 없습니다."));
+		Walk walk = walkRepository.findById(walkId).orElseThrow(() -> new IllegalArgumentException("산책 기록을 찾을 수 없습니다."));
 		walkRepository.deleteById(walkId);
 	}
 
@@ -103,7 +105,8 @@ public class WalkServiceImpl implements WalkService {
 
 	// 산책 기록 전체 조회
 	public Page<WalkDetailDto> listAll(String memberId) {
-		User user = getUser(memberId);
+		User user = userRepository.findByMemberId(memberId)
+				.orElseThrow(() -> new IllegalArgumentException("가입하지 않은 계정입니다."));
 		Sort sort = Sort.by(Sort.Direction.DESC, "id");
 		List<Walk> list = walkRepository.findByUser(user, sort).stream().collect(Collectors.toList());
 		List<WalkDetailDto> result = list.stream().map(walk -> new WalkDetailDto(walk, getPetList(walk.getId())))
@@ -123,11 +126,6 @@ public class WalkServiceImpl implements WalkService {
 		List<WalkPet> walkPetList = walkPetRepository.findByWalk(walk);
 		List<WalkPetDetailDto> petList = walkPetList.stream().map(wp -> new WalkPetDetailDto(wp.getPet())).collect(Collectors.toList());
 		return petList;
-	}
-
-	public User getUser(String memberId) {
-		Optional<User> user = userRepository.findByMemberId(memberId);
-		return user.get();
 	}
 
 	@Override

@@ -28,7 +28,7 @@ public interface UserService {
     User modify(String memberId, UserModifyRequestDto requestDto);
     
     // 메인 반려동물 수정
-    void modifyPet(String memberId, int petId);
+    User modifyPet(String memberId, int petId);
 
     //로그아웃
     void logout(String refresh_token);
@@ -37,6 +37,6 @@ public interface UserService {
 
 	String getProfilePicture(String memberId);
 	
-	void quit(String memberId);
+	User quit(String memberId);
 
 }

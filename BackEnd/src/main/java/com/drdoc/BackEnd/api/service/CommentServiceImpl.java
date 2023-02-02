@@ -33,19 +33,19 @@ public class CommentServiceImpl implements CommentService {
 
 	@Override
 	@Transactional
-	public void writeComment(String memberId, CommentWriteRequestDto requestDto) {
+	public Comment writeComment(String memberId, CommentWriteRequestDto requestDto) {
 		User user = userRepository.findByMemberId(memberId)
 				.orElseThrow(() -> new IllegalArgumentException("가입하지 않은 계정입니다."));
 		Board board = boardRepository.findById(requestDto.getBoard_id())
 				.orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
 		Comment comment = Comment.builder().user(user).board(board).
 				content(requestDto.getContent()).createdTime(LocalDateTime.now()).build();
-		commentRepository.save(comment);
+		return commentRepository.save(comment);
 	}
 
 	@Override
 	@Transactional
-	public void modifyComment(String memberId, int commentId, CommentModifyRequestDto requestDto) {
+	public Comment modifyComment(String memberId, int commentId, CommentModifyRequestDto requestDto) {
 		User user = userRepository.findByMemberId(memberId)
 				.orElseThrow(() -> new IllegalArgumentException("가입하지 않은 계정입니다."));
 		Comment comment = commentRepository.findById(commentId)
@@ -53,7 +53,7 @@ public class CommentServiceImpl implements CommentService {
 		if (user.getId() != comment.getUser().getId())
 			throw new AccessDeniedException("권한이 없습니다.");
 		comment.modify(requestDto.getContent());
-		commentRepository.save(comment);
+		return commentRepository.save(comment);
 	}
 
 	@Override
